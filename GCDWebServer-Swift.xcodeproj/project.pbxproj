@@ -10,6 +10,7 @@
 		09E1FFC02A99A19500C4AE69 /* GCDWebServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E1FFBF2A99A19500C4AE69 /* GCDWebServer.swift */; };
 		09E1FFD12A99D4BF00C4AE69 /* libGCDWebServer-Swift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 09E1FFBC2A99A19500C4AE69 /* libGCDWebServer-Swift.a */; };
 		09E1FFD72A99D4C700C4AE69 /* GCDWebServerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E1FFC72A99C76C00C4AE69 /* GCDWebServerTests.swift */; };
+		09E1FFDA2A9C7DC100C4AE69 /* GCDWebServerRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E1FFD92A9C7DC100C4AE69 /* GCDWebServerRequest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,6 +40,7 @@
 		09E1FFBF2A99A19500C4AE69 /* GCDWebServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDWebServer.swift; sourceTree = "<group>"; };
 		09E1FFC72A99C76C00C4AE69 /* GCDWebServerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDWebServerTests.swift; sourceTree = "<group>"; };
 		09E1FFCD2A99D4BF00C4AE69 /* Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		09E1FFD92A9C7DC100C4AE69 /* GCDWebServerRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDWebServerRequest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +83,7 @@
 		09E1FFBE2A99A19500C4AE69 /* GCDWebServer-Swift */ = {
 			isa = PBXGroup;
 			children = (
+				09E1FFD82A9C7DA500C4AE69 /* Core */,
 				09E1FFBF2A99A19500C4AE69 /* GCDWebServer.swift */,
 			);
 			path = "GCDWebServer-Swift";
@@ -92,6 +95,14 @@
 				09E1FFC72A99C76C00C4AE69 /* GCDWebServerTests.swift */,
 			);
 			path = Tests;
+			sourceTree = "<group>";
+		};
+		09E1FFD82A9C7DA500C4AE69 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				09E1FFD92A9C7DC100C4AE69 /* GCDWebServerRequest.swift */,
+			);
+			path = Core;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -184,6 +195,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				09E1FFDA2A9C7DC100C4AE69 /* GCDWebServerRequest.swift in Sources */,
 				09E1FFC02A99A19500C4AE69 /* GCDWebServer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
