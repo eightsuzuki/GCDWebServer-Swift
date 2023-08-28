@@ -1,11 +1,17 @@
-import GCDWebServer_Swift
+@testable import GCDWebServer_Swift
+
 import XCTest
 
 final class Tests: XCTestCase {
 
-  func testInit() throws {
-    let server = GCDWebServer()
-    XCTAssertNotNil(server)
+  func testAddHandler() {
+      let server = GCDWebServer()
+      XCTAssertNotNil(server)
+
+      server.addHandler()
+      XCTAssertEqual(server.handlersCount(), 1)
+
+      server.removeAllHandlers()
+      XCTAssertEqual(server.handlersCount(), 0)
+    }
   }
-}
-

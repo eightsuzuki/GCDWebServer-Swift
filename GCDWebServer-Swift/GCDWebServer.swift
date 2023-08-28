@@ -25,11 +25,30 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+class GCDWebServerHandler {
+}
+
 public class GCDWebServer {
 
-  private var handlers: [String]
+  fileprivate var handlers: [GCDWebServerHandler]
 
   public init() {
     handlers = []
+  }
+
+  public func addHandler() {
+      let handler = GCDWebServerHandler()
+      handlers.insert(handler, at: 0)
+    }
+
+    public func removeAllHandlers() {
+      handlers.removeAll()
+    }
+  }
+/// Extenstion for tests
+extension GCDWebServer {
+
+  func handlersCount() -> Int {
+    return handlers.count
   }
 }
