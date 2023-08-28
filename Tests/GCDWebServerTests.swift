@@ -5,11 +5,8 @@ final class Tests: XCTestCase {
   func testAddHandler() {
     let server = GCDWebServer()
     XCTAssertNotNil(server)
-
-    let matchBlock: GCDWebServerMatchBlock = { requestMethod, requestURL, requestHeaders, urlPath, urlQuery in
-      return ""
-    }
-    server.addHandler(with: matchBlock)
+    
+    server.addHandler(for: "GET", regex: "/test")
     XCTAssertEqual(server.handlersCount(), 1)
 
     server.removeAllHandlers()

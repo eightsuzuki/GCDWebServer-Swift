@@ -30,34 +30,57 @@ public typealias GCDWebServerMatchBlock = (_ requestMethod: String, _ requestURL
 
 class GCDWebServerHandler {
 
-  private var matchBlock: GCDWebServerMatchBlock?
+    private var matchBlock: GCDWebServerMatchBlock?
 
-  init(mathcBlock: @escaping GCDWebServerMatchBlock) {
-    self.matchBlock = mathcBlock
-  }
+    init(mathcBlock: @escaping GCDWebServerMatchBlock) {
+        self.matchBlock = mathcBlock
+    }
 }
 
 public class GCDWebServer {
+    fileprivate var handlers: [GCDWebServerHandler]
     
-  fileprivate var handlers: [GCDWebServerHandler]
-  
-  public init() {
-    handlers = []
-  }
+    public init() {
+        handlers = []
+    }
+    
+    public func addHandler(with matckBlock: @escaping GCDWebServerMatchBlock) {
+        let handler = GCDWebServerHandler(mathcBlock: matckBlock)
+        handlers.insert(handler, at: 0)
+    }
+    
+    public func addHandler(for method: String, regex: String) {
+        let expression: NSRegularExpression?
+        do {
+            expression = try NSRegularExpression(pattern: regex, options: .caseInsensitive)
+        } catch {
+            expression = nil
+        }
 
-  public func addHandler(with matckBlock: @escaping GCDWebServerMatchBlock) {
-    let handler = GCDWebServerHandler(mathcBlock: matckBlock)
-    handlers.insert(handler, at: 0)
-  }
+        if let expression {
+            let matchBlock: GCDWebServerMatchBlock = { requestMethod, requestURL, requestHeaders, urlPath, urlQuery in
+                if (requestMethod != method) {
+                    return nil
+                }
 
-  public func removeAllHandlers() {
-    handlers.removeAll()
-  }
+                let matches = expression.matches(in: urlPath, range: NSMakeRange(0, urlPath.count))
+                if (matches.count == 0) {
+                    return nil
+                }
+                return ""
+            }
+            addHandler(with: matchBlock)
+        }
+    }
+
+    public func removeAllHandlers() {
+        handlers.removeAll()
+    }
 }
 /// Extenstion for tests
 extension GCDWebServer {
   
-  func handlersCount() -> Int {
-    return handlers.count
-  }
+    func handlersCount() -> Int {
+        return handlers.count
+    }
 }
