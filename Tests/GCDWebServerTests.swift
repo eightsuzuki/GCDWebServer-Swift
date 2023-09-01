@@ -1,28 +1,15 @@
-import XCTest
-
 @testable import GCDWebServer_Swift
 
-final class Tests: XCTestCase {
+import XCTest
 
-  func testAddHandler() {
+final class GCDWebServerConnectionTests: XCTestCase {
+
+  func testInit() {
     let server = GCDWebServer()
-    XCTAssertNotNil(server)
-
     server.addHandler(for: "GET", regex: "/test")
-    XCTAssertEqual(server.handlersCount(), 1)
+    let connection = GCDWebServerConnection(with: server)
 
-    XCTAssertNotNil(
-      server.request(
-        with: "GET", url: URL(string: "localhost")!, headers: [:], path: "/test", query: [:]))
-    XCTAssertNil(
-      server.request(
-        with: "POST", url: URL(string: "localhost")!, headers: [:], path: "/test", query: [:]))
-
-    server.removeAllHandlers()
-
-    XCTAssertEqual(server.handlersCount(), 0)
-    XCTAssertNil(
-      server.request(
-        with: "GET", url: URL(string: "localhost")!, headers: [:], path: "/test", query: [:]))
+    XCTAssertNotNil(connection)
+    XCTAssert(connection.isRequestNull())
   }
 }

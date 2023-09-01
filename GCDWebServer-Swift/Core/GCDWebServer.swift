@@ -27,22 +27,20 @@
 
 import Foundation
 
-public typealias GCDWebServerMatchBlock = (
-  _ requestMethod: String, _ requestURL: URL, _ requestHeaders: [String: String], _ urlPath: String,
-  _ urlQuery: [String: String]
-) -> GCDWebServerRequest?
+public typealias GCDWebServerMatchBlock = (_ requestMethod: String, _ requestURL: URL, _ requestHeaders: [String: String], _ urlPath: String, _ urlQuery: [String: String]) -> GCDWebServerRequest?
 
-class GCDWebServerHandler {
+public class GCDWebServerHandler {
 
-  fileprivate var matchBlock: GCDWebServerMatchBlock
-
+  public var matchBlock: GCDWebServerMatchBlock
+    
   init(mathcBlock: @escaping GCDWebServerMatchBlock) {
     self.matchBlock = mathcBlock
   }
 }
-public class GCDWebServer {
 
-  fileprivate var handlers: [GCDWebServerHandler]
+public class GCDWebServer {
+  
+  public var handlers: [GCDWebServerHandler]
 
   public init() {
     handlers = []
@@ -62,8 +60,7 @@ public class GCDWebServer {
     }
 
     if let expression {
-      let matchBlock: GCDWebServerMatchBlock = {
-        requestMethod, requestURL, requestHeaders, urlPath, urlQuery in
+      let matchBlock: GCDWebServerMatchBlock = { requestMethod, requestURL, requestHeaders, urlPath, urlQuery in
         if requestMethod != method {
           return nil
         }
@@ -72,9 +69,7 @@ public class GCDWebServer {
         if matches.count == 0 {
           return nil
         }
-        return GCDWebServerRequest(
-          with: requestMethod, url: requestURL, headers: requestHeaders, path: urlPath,
-          query: urlQuery)
+        return GCDWebServerRequest(with: requestMethod, url: requestURL, headers: requestHeaders, path: urlPath, query: urlQuery)
       }
       addHandler(with: matchBlock)
     }
@@ -82,24 +77,5 @@ public class GCDWebServer {
 
   public func removeAllHandlers() {
     handlers.removeAll()
-  }
-}
-/// Extenstion for tests
-extension GCDWebServer {
-
-  func handlersCount() -> Int {
-    return handlers.count
-  }
-
-  func request(
-    with method: String, url: URL, headers: [String: String], path: String, query: [String: String]
-  ) -> GCDWebServerRequest? {
-    for handler in handlers {
-      let request = handler.matchBlock(method, url, headers, path, query)
-      if let request {
-        return request
-      }
-    }
-    return nil
   }
 }

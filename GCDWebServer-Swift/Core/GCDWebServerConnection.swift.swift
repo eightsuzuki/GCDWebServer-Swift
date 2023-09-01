@@ -1,14 +1,7 @@
-//
-//  GCDWebServerRequest.swift
-//  GCDWebServer-Swift
-//
-//  Created by 鈴木詠斗 on 2023/08/28.
-//
-
 /*
  Copyright (c) 2012-2019, Pierre-Olivier Latour
  All rights reserved.
-
+ 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
  * Redistributions of source code must retain the above copyright
@@ -19,7 +12,7 @@
  * The name of Pierre-Olivier Latour may not be used to endorse
  or promote products derived from this software without specific
  prior written permission.
-
+ 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,25 +27,38 @@
 
 import Foundation
 
-public class GCDWebServerRequest {
+class GCDWebServerConnection {
 
-  private var method: String
+  private var server: GCDWebServer
 
-  private var url: URL
+  private var request: GCDWebServerRequest?
 
-  private var headers: [String: String]
+  public init(with server: GCDWebServer){
+    self.server = server
 
-  private var path: String
+    readRequestHeaders()
+  }
 
-  private var query: [String: String]
+  private func readRequestHeaders() {
+    let method = "GET"
+    let url = URL(string: "localhost")!
+    let headers: [String: String] = [:]
+    let path = "/home"
+    let query: [String: String] = [:]
 
-  public init(
-    with method: String, url: URL, headers: [String: String], path: String, query: [String: String]
-  ) {
-    self.method = method
-    self.url = url
-    self.headers = headers
-    self.path = path
-    self.query = query
+    for handler in server.handlers {
+      let request = handler.matchBlock(method, url, headers, path, query)
+      if let request {
+        self.request = request
+        break
+      }
+    }
+  }
+}
+
+extension GCDWebServerConnection {
+
+  public func isRequestNull() -> Bool {
+    return request == nil
   }
 }
