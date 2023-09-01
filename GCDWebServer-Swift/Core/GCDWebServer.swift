@@ -45,8 +45,13 @@ public class GCDWebServer {
 
   public var handlers: [GCDWebServerHandler]
 
+  private let sourceGroup: DispatchGroup
+
+  private var source4: DispatchSourceRead?
+
   public init() {
     handlers = []
+    sourceGroup = DispatchGroup()
   }
 
   public func addHandler(with matckBlock: @escaping GCDWebServerMatchBlock) {
@@ -107,6 +112,11 @@ public class GCDWebServer {
       return false
     }
 
+    source4 = createDispatchSourceWithListeningSocket(
+      listeningSocket: listeningSocket4, isIPv6: false)
+
+    source4?.resume()
+
     return true
   }
 
@@ -117,13 +127,11 @@ public class GCDWebServer {
     let domain: Int32 = useIPv6 ? PF_INET6 : PF_INET
     let socketType: Int32 = SOCK_STREAM
     let protocolType: Int32 = IPPROTO_TCP
-
     let listeningSocket = socket(domain, socketType, protocolType)
     if listeningSocket > 0 {
       var yes: Int32 = 1
       setsockopt(
         listeningSocket, SOL_SOCKET, SO_REUSEADDR, &yes, socklen_t(MemoryLayout<Int32>.size))
-
       if bind(listeningSocket, localAddress, length) == 0 {
         if listen(listeningSocket, maxPendingConnections) == 0 {
           return listeningSocket
@@ -137,6 +145,22 @@ public class GCDWebServer {
     return -1
   }
 
-  private func createDispatchSourceWithListeningSocket() {
+  private func createDispatchSourceWithListeningSocket(listeningSocket: Int32, isIPv6: Bool)
+    -> DispatchSourceRead
+  {
+    sourceGroup.enter()
+    let source = DispatchSource.makeReadSource(fileDescriptor: listeningSocket)
+    source.setCancelHandler {
+      close(listeningSocket)
+      self.sourceGroup.leave()
+    }
+
+    return source
+  }
+
+  /// This function must be called after calling start to leave disptach group.
+  public func stop() {
+    source4?.cancel()
+    source4 = nil
   }
 }

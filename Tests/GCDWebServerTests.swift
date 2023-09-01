@@ -14,15 +14,19 @@ final class Tests: XCTestCase {
     XCTAssertNotNil(
       server.request(
         with: "GET", url: URL(string: "localhost")!, headers: [:], path: "/test", query: [:]))
+
     XCTAssertNil(
       server.request(
         with: "POST", url: URL(string: "localhost")!, headers: [:], path: "/test", query: [:]))
 
     server.removeAllHandlers()
+
     XCTAssertEqual(server.handlersCount(), 0)
+
     XCTAssertNil(
       server.request(
         with: "GET", url: URL(string: "localhost")!, headers: [:], path: "/test", query: [:]))
+    server.stop()
   }
 
   func testStart() {
