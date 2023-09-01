@@ -27,10 +27,22 @@
 
 import Foundation
 
-public typealias GCDWebServerMatchBlock = (
-  _ requestMethod: String, _ requestURL: URL, _ requestHeaders: [String: String], _ urlPath: String,
-  _ urlQuery: [String: String]
-) -> GCDWebServerRequest?
+#if os(iOS)
+let kDefaultPort: Int = 80
+#else
+let kDefaultPort: Int = 8080
+#endif
+
+let GCDWebServerOption_Port = "Port"
+
+public typealias GCDWebServerMatchBlock = (_ requestMethod: String, _ requestURL: URL, _ requestHeaders: [String: String], _ urlPath: String, _ urlQuery: [String: String]) -> GCDWebServerRequest?
+
+private func getOption(options: [String: Any]?, key: String, defaultValue: Any) -> Any {
+  if let value = options?[key] {
+    return value
+  }
+  return defaultValue
+}
 
 public class GCDWebServerHandler {
 
@@ -42,6 +54,8 @@ public class GCDWebServerHandler {
 }
 
 public class GCDWebServer {
+    
+    private var options: [String: Any]?
 
   public var handlers: [GCDWebServerHandler]
 
@@ -90,78 +104,86 @@ public class GCDWebServer {
     handlers.removeAll()
   }
 
-  public func start(with options: [String: Any]) -> Bool {
-    return start()
-  }
-
-  private func start() -> Bool {
-    var addr4 = sockaddr_in()
-    memset(&addr4, 0, MemoryLayout<sockaddr_in>.size)
-    addr4.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
-    addr4.sin_family = sa_family_t(AF_INET)
-    addr4.sin_port = 9848
-    addr4.sin_addr.s_addr = inet_addr("0.0.0.0")
-
-    var bindAddr4 = sockaddr()
-    memcpy(&bindAddr4, &addr4, Int(MemoryLayout<sockaddr_in>.size))
-
-    let listeningSocket4 = createListeningSocket(
-      useIPv6: false, localAddress: &bindAddr4, length: UInt32(MemoryLayout<sockaddr_in>.size),
-      maxPendingConnections: 16)
-    if listeningSocket4 <= 0 {
-      return false
+    public func start() -> Bool {
+      return start(with: kDefaultPort)
     }
 
-    source4 = createDispatchSourceWithListeningSocket(
-      listeningSocket: listeningSocket4, isIPv6: false)
+    public func start(with port: Int) -> Bool {
+      var options: [String: Any] = [:]
+      options[GCDWebServerOption_Port] = kDefaultPort
+      return start(with: options)
+    }
 
-    source4?.resume()
+    public func start(with options: [String: Any]) -> Bool {
+      if self.options == nil {
+        self.options = options
+      }
+      return _start()
+    }
 
-    return true
-  }
+    private func _start() -> Bool {
+      let port = getOption(options: options, key: GCDWebServerOption_Port, defaultValue: 0)
 
-  private func createListeningSocket(
-    useIPv6: Bool, localAddress: UnsafePointer<sockaddr>, length: socklen_t,
-    maxPendingConnections: Int32
-  ) -> Int32 {
-    let domain: Int32 = useIPv6 ? PF_INET6 : PF_INET
-    let socketType: Int32 = SOCK_STREAM
-    let protocolType: Int32 = IPPROTO_TCP
-    let listeningSocket = socket(domain, socketType, protocolType)
-    if listeningSocket > 0 {
-      var yes: Int32 = 1
-      setsockopt(
-        listeningSocket, SOL_SOCKET, SO_REUSEADDR, &yes, socklen_t(MemoryLayout<Int32>.size))
-      if bind(listeningSocket, localAddress, length) == 0 {
-        if listen(listeningSocket, maxPendingConnections) == 0 {
-          return listeningSocket
+      var addr4 = sockaddr_in()
+      memset(&addr4, 0, MemoryLayout<sockaddr_in>.size)
+      addr4.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
+      addr4.sin_family = sa_family_t(AF_INET)
+      addr4.sin_port = port as? in_port_t ?? 0
+      addr4.sin_addr.s_addr = inet_addr("0.0.0.0")
+
+      var bindAddr4 = sockaddr()
+      memcpy(&bindAddr4, &addr4, Int(MemoryLayout<sockaddr_in>.size))
+      
+      let listeningSocket4 = createListeningSocket(useIPv6: false, localAddress: &bindAddr4, length: UInt32(MemoryLayout<sockaddr_in>.size), maxPendingConnections: 16)
+      if(listeningSocket4 <= 0) {
+        return false
+      }
+      
+      source4 = createDispatchSourceWithListeningSocket(listeningSocket: listeningSocket4, isIPv6: false)
+      
+      source4?.resume()
+      
+      return true
+    }
+    
+    private func createListeningSocket(useIPv6: Bool, localAddress: UnsafePointer<sockaddr>, length: socklen_t, maxPendingConnections: Int32) -> Int32 {
+      let domain: Int32 = useIPv6 ? PF_INET6 : PF_INET
+      let socketType: Int32 = SOCK_STREAM
+      let protocolType: Int32 = IPPROTO_TCP
+      
+      let listeningSocket = socket(domain, socketType, protocolType)
+      if listeningSocket > 0 {
+        var yes: Int32 = 1
+        setsockopt(listeningSocket, SOL_SOCKET, SO_REUSEADDR, &yes, socklen_t(MemoryLayout<Int32>.size))
+        
+        if(bind(listeningSocket, localAddress, length) == 0) {
+          if (listen(listeningSocket, maxPendingConnections) == 0) {
+            return listeningSocket
+          } else {
+            close(listeningSocket)
+          }
         } else {
           close(listeningSocket)
         }
-      } else {
-        close(listeningSocket)
       }
+      return -1
     }
-    return -1
-  }
-
-  private func createDispatchSourceWithListeningSocket(listeningSocket: Int32, isIPv6: Bool)
-    -> DispatchSourceRead
-  {
-    sourceGroup.enter()
-    let source = DispatchSource.makeReadSource(fileDescriptor: listeningSocket)
-    source.setCancelHandler {
-      close(listeningSocket)
-      self.sourceGroup.leave()
+    
+    private func createDispatchSourceWithListeningSocket(listeningSocket: Int32, isIPv6: Bool) -> DispatchSourceRead {
+      sourceGroup.enter()
+      let source = DispatchSource.makeReadSource(fileDescriptor: listeningSocket)
+      source.setCancelHandler {
+        close(listeningSocket)
+        self.sourceGroup.leave()
+      }
+      
+      return source
     }
-
-    return source
+    
+    /// This function must be called after calling start to leave disptach group.
+    public func stop() {
+      source4?.cancel()
+      source4 = nil
+      sourceGroup.wait()
+    }
   }
-
-  /// This function must be called after calling start to leave disptach group.
-  public func stop() {
-    source4?.cancel()
-    source4 = nil
-    sourceGroup.wait()
-  }
-}
