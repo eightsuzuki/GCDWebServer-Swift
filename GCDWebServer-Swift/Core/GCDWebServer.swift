@@ -162,5 +162,6 @@ public class GCDWebServer {
   public func stop() {
     source4?.cancel()
     source4 = nil
+    sourceGroup.wait()
   }
 }
