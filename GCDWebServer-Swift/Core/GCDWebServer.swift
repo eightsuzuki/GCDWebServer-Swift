@@ -125,13 +125,13 @@ public class GCDWebServer {
   }
 
   private func _start() -> Bool {
-    let port = getOption(options: options, key: GCDWebServerOption_Port, defaultValue: 0)
+    let port = getOption(options: options, key: GCDWebServerOption_Port, defaultValue: 0) as! Int
 
     var addr4 = sockaddr_in()
     memset(&addr4, 0, MemoryLayout<sockaddr_in>.size)
     addr4.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
     addr4.sin_family = sa_family_t(AF_INET)
-    addr4.sin_port = port as? in_port_t ?? 0
+    addr4.sin_port = in_port_t(port)
     addr4.sin_addr.s_addr = inet_addr("127.0.0.1")
 
     var bindAddr4 = sockaddr()
@@ -156,11 +156,7 @@ public class GCDWebServer {
     useIPv6: Bool, localAddress: UnsafePointer<sockaddr>, length: socklen_t,
     maxPendingConnections: Int32
   ) -> Int32 {
-    let domain: Int32 = useIPv6 ? PF_INET6 : PF_INET
-    let socketType: Int32 = SOCK_STREAM
-    let protocolType: Int32 = IPPROTO_TCP
-
-    let listeningSocket = socket(domain, socketType, protocolType)
+    let listeningSocket = socket(useIPv6 ? PF_INET6 : PF_INET, SOCK_STREAM, IPPROTO_TCP)
     if listeningSocket > 0 {
       var yes: Int32 = 1
       setsockopt(
