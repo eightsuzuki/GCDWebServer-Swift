@@ -41,7 +41,7 @@ class GCDWebServerConnection {
 
   private var headersData: Data?
 
-  private let CRLFCRLFData: Data = Data(bytes: "\r\n\r\n", count: 4)
+  private let doubleCRLFData: Data = Data(bytes: "\r\n\r\n", count: 4)
 
   private enum readDataTypes: Int {
     case headers
@@ -77,8 +77,9 @@ class GCDWebServerConnection {
     readData(dataType: readDataTypes.headers.rawValue, with: Int.max) { success in
       if success {
         let range = self.headersData?.range(
-          of: self.CRLFCRLFData, options: [], in: 0..<self.headersData!.count)
+          of: self.doubleCRLFData, options: [], in: 0..<self.headersData!.count)
         if let range, !range.isEmpty {
+          print("ok")
         } else {
           self.readHeaders()
         }
