@@ -29,6 +29,8 @@ import Foundation
 
 let kHeadersReadCapacity = 1024
 
+typealias ReadCompletionBlock = (_ success: Bool) -> Void
+
 class GCDWebServerConnection {
 
   private var server: GCDWebServer
@@ -38,6 +40,8 @@ class GCDWebServerConnection {
   private var request: GCDWebServerRequest?
 
   private var headersData: Data?
+
+  private let CRLFCRLFData: Data = Data(bytes: "\r\n\r\n", count: 4)
 
   private enum readDataTypes: Int {
     case headers
@@ -70,15 +74,24 @@ class GCDWebServerConnection {
   }
 
   private func readHeaders() {
-    readData(dataType: readDataTypes.headers.rawValue, with: Int.max)
+    readData(dataType: readDataTypes.headers.rawValue, with: Int.max) { success in
+      if success {
+        let range = self.headersData?.range(
+          of: self.CRLFCRLFData, options: [], in: 0..<self.headersData!.count)
+        if let range, !range.isEmpty {
+        } else {
+          self.readHeaders()
+        }
+      }
+    }
   }
 
-  private func readData(dataType: Int, with length: Int) {
+  private func readData(dataType: Int, with length: Int, block: @escaping ReadCompletionBlock) {
     let readQueue = DispatchQueue(label: "GCDWebServerConnection.readQueue")
     DispatchIO.read(fromFileDescriptor: socket, maxLength: length, runningHandlerOn: readQueue) {
       buffer, err in
       if err != 0 {
-        return
+        block(false)
       }
       if buffer.count > 0 {
         buffer.enumerateBytes { chunk, offset, isLast in
@@ -91,6 +104,9 @@ class GCDWebServerConnection {
             return
           }
         }
+        block(true)
+      } else {
+        block(false)
       }
     }
   }
