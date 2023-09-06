@@ -31,15 +31,20 @@ class GCDWebServerConnection {
 
   private var server: GCDWebServer
 
+  private var socket: Int32
+
   private var request: GCDWebServerRequest?
 
-  public init(with server: GCDWebServer) {
+  public init(with server: GCDWebServer, socket: Int32) {
     self.server = server
+    self.socket = socket
 
     readRequestHeaders()
   }
 
   private func readRequestHeaders() {
+    //    readData(length: Int.max)
+
     let method = "GET"
     let url = URL(string: "localhost")!
     let headers: [String: String] = [:]
@@ -55,9 +60,27 @@ class GCDWebServerConnection {
     }
   }
 
+  private func readData(length: Int) {
+    let readQueue = DispatchQueue(label: "GCDWebServerConnection.readQueue")
+    //    let dispatcher = DispatchIO(type: .stream, fileDescriptor: socket, queue: readQueue) { err in
+    //      if err != 0 {
+    //        return
+    //      }
+    //    }
+    //    dispatcher.read(offset: 0, length: length, queue: readQueue) { done, buffer, err in
+    DispatchIO.read(fromFileDescriptor: socket, maxLength: length, runningHandlerOn: readQueue) {
+      buffer, err in
+      if err != 0 {
+        return
+      }
+      if buffer.count > 0 {
+        print("OK")
+      }
+    }
+  }
+
   /// Only used for avoiding unused warning.
   public func echo() {}
-
 }
 
 extension GCDWebServerConnection {

@@ -17,7 +17,7 @@
  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  DISCLAIMED. IN NO EVENT SHALL PIERRE-OLIVIER LATOUR BE LIABLE FOR ANY
- DIRECT, INDIRECTz, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
@@ -48,7 +48,7 @@ private func getOption(options: [String: Any]?, key: String, defaultValue: Any) 
 }
 
 public class GCDWebServerHandler {
-
+    
   public var matchBlock: GCDWebServerMatchBlock
 
   init(mathcBlock: @escaping GCDWebServerMatchBlock) {
@@ -180,16 +180,30 @@ public class GCDWebServer {
   {
     sourceGroup.enter()
     let source = DispatchSource.makeReadSource(fileDescriptor: listeningSocket)
+
     source.setCancelHandler {
       close(listeningSocket)
       self.sourceGroup.leave()
     }
+
     source.setEventHandler {
       var remoteSockAddr = sockaddr()
       var remoteAddrLen = socklen_t(MemoryLayout<sockaddr>.size)
 
-      if accept(listeningSocket, &remoteSockAddr, &remoteAddrLen) > 0 {
-        let connection = GCDWebServerConnection(with: self)
+      let clientSocket = accept(listeningSocket, &remoteSockAddr, &remoteAddrLen)
+      if clientSocket > 0 {
+        var buffer = [UInt8](repeating: 0, count: 1024)
+        let bytesRead = recv(clientSocket, &buffer, buffer.count, 0)
+
+        if bytesRead <= 0 {
+          print("Client disconnected")
+        }
+
+        if let message = String(bytes: buffer, encoding: .utf8) {
+          print(message)
+        }
+
+        let connection = GCDWebServerConnection(with: self, socket: listeningSocket)
         connection.echo()
       }
     }

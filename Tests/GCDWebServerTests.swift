@@ -19,6 +19,7 @@ final class Tests: XCTestCase {
         with: "POST", url: URL(string: "localhost")!, headers: [:], path: "/test", query: [:]))
 
     server.removeAllHandlers()
+
     XCTAssertEqual(server.handlersCount(), 0)
     XCTAssertNil(
       server.request(

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0970EBEE2AA8721600E88014 /* libGCDWebServer-Swift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 09E1FFBC2A99A19500C4AE69 /* libGCDWebServer-Swift.a */; };
+		0970EBF42AA8721D00E88014 /* GCDWebServerConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0970EBEC2AA8721600E88014 /* GCDWebServerConnectionTests.swift */; };
 		09E1FFC02A99A19500C4AE69 /* GCDWebServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E1FFBF2A99A19500C4AE69 /* GCDWebServer.swift */; };
 		09E1FFD12A99D4BF00C4AE69 /* libGCDWebServer-Swift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 09E1FFBC2A99A19500C4AE69 /* libGCDWebServer-Swift.a */; };
 		09E1FFD72A99D4C700C4AE69 /* GCDWebServerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E1FFC72A99C76C00C4AE69 /* GCDWebServerTests.swift */; };
@@ -16,6 +18,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		0970EBEF2AA8721600E88014 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 09E1FFB42A99A19500C4AE69 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 09E1FFBB2A99A19500C4AE69;
+			remoteInfo = "GCDWebServer-Swift";
+		};
 		09E1FFD22A99D4BF00C4AE69 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 09E1FFB42A99A19500C4AE69 /* Project object */;
@@ -38,6 +47,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0970EBEA2AA8721600E88014 /* GCDWebServerConnectionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GCDWebServerConnectionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0970EBEC2AA8721600E88014 /* GCDWebServerConnectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDWebServerConnectionTests.swift; sourceTree = "<group>"; };
 		09E1FFBC2A99A19500C4AE69 /* libGCDWebServer-Swift.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libGCDWebServer-Swift.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		09E1FFBF2A99A19500C4AE69 /* GCDWebServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDWebServer.swift; sourceTree = "<group>"; };
 		09E1FFC72A99C76C00C4AE69 /* GCDWebServerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDWebServerTests.swift; sourceTree = "<group>"; };
@@ -48,6 +59,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		0970EBE72AA8721600E88014 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0970EBEE2AA8721600E88014 /* libGCDWebServer-Swift.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		09E1FFB92A99A19500C4AE69 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -80,6 +99,7 @@
 			children = (
 				09E1FFBC2A99A19500C4AE69 /* libGCDWebServer-Swift.a */,
 				09E1FFCD2A99D4BF00C4AE69 /* Tests.xctest */,
+				0970EBEA2AA8721600E88014 /* GCDWebServerConnectionTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -96,6 +116,7 @@
 			isa = PBXGroup;
 			children = (
 				09E1FFC72A99C76C00C4AE69 /* GCDWebServerTests.swift */,
+				0970EBEC2AA8721600E88014 /* GCDWebServerConnectionTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -114,6 +135,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		0970EBE92AA8721600E88014 /* GCDWebServerConnectionTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0970EBF12AA8721600E88014 /* Build configuration list for PBXNativeTarget "GCDWebServerConnectionTests" */;
+			buildPhases = (
+				0970EBE62AA8721600E88014 /* Sources */,
+				0970EBE72AA8721600E88014 /* Frameworks */,
+				0970EBE82AA8721600E88014 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0970EBF02AA8721600E88014 /* PBXTargetDependency */,
+			);
+			name = GCDWebServerConnectionTests;
+			productName = GCDWebServerConnectionTests;
+			productReference = 0970EBEA2AA8721600E88014 /* GCDWebServerConnectionTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		09E1FFBB2A99A19500C4AE69 /* GCDWebServer-Swift */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 09E1FFC32A99A19500C4AE69 /* Build configuration list for PBXNativeTarget "GCDWebServer-Swift" */;
@@ -159,6 +198,9 @@
 				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					0970EBE92AA8721600E88014 = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
 					09E1FFBB2A99A19500C4AE69 = {
 						CreatedOnToolsVersion = 14.3.1;
 					};
@@ -182,11 +224,19 @@
 			targets = (
 				09E1FFBB2A99A19500C4AE69 /* GCDWebServer-Swift */,
 				09E1FFCC2A99D4BF00C4AE69 /* Tests */,
+				0970EBE92AA8721600E88014 /* GCDWebServerConnectionTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0970EBE82AA8721600E88014 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		09E1FFCB2A99D4BF00C4AE69 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -197,6 +247,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0970EBE62AA8721600E88014 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		09E1FFB82A99A19500C4AE69 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -212,6 +269,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0970EBF42AA8721D00E88014 /* GCDWebServerConnectionTests.swift in Sources */,
 				09E1FFD72A99D4C700C4AE69 /* GCDWebServerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -219,6 +277,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		0970EBF02AA8721600E88014 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 09E1FFBB2A99A19500C4AE69 /* GCDWebServer-Swift */;
+			targetProxy = 0970EBEF2AA8721600E88014 /* PBXContainerItemProxy */;
+		};
 		09E1FFD32A99D4BF00C4AE69 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 09E1FFBB2A99A19500C4AE69 /* GCDWebServer-Swift */;
@@ -227,6 +290,38 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		0970EBF22AA8721600E88014 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = H9UMT4PKB7;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "okuda-semi.GCDWebServerConnectionTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		0970EBF32AA8721600E88014 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = H9UMT4PKB7;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "okuda-semi.GCDWebServerConnectionTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		09E1FFC12A99A19500C4AE69 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -402,6 +497,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0970EBF12AA8721600E88014 /* Build configuration list for PBXNativeTarget "GCDWebServerConnectionTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0970EBF22AA8721600E88014 /* Debug */,
+				0970EBF32AA8721600E88014 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		09E1FFB72A99A19500C4AE69 /* Build configuration list for PBXProject "GCDWebServer-Swift" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
