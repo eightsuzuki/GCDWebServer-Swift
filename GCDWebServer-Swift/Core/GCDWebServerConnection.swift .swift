@@ -27,6 +27,8 @@
 
 import Foundation
 
+let kHeadersReadCapacity = 1024
+
 class GCDWebServerConnection {
 
   private var server: GCDWebServer
@@ -34,6 +36,12 @@ class GCDWebServerConnection {
   private var socket: Int32
 
   private var request: GCDWebServerRequest?
+
+  private var headersData: Data?
+
+  private enum readDataTypes: Int {
+    case headers
+  }
 
   public init(with server: GCDWebServer, socket: Int32) {
     self.server = server
@@ -43,7 +51,8 @@ class GCDWebServerConnection {
   }
 
   private func readRequestHeaders() {
-    //    readData(length: Int.max)
+    headersData = Data(capacity: kHeadersReadCapacity)
+    readHeaders()
 
     let method = "GET"
     let url = URL(string: "localhost")!
@@ -60,21 +69,28 @@ class GCDWebServerConnection {
     }
   }
 
-  private func readData(length: Int) {
+  private func readHeaders() {
+    readData(dataType: readDataTypes.headers.rawValue, with: Int.max)
+  }
+
+  private func readData(dataType: Int, with length: Int) {
     let readQueue = DispatchQueue(label: "GCDWebServerConnection.readQueue")
-    //    let dispatcher = DispatchIO(type: .stream, fileDescriptor: socket, queue: readQueue) { err in
-    //      if err != 0 {
-    //        return
-    //      }
-    //    }
-    //    dispatcher.read(offset: 0, length: length, queue: readQueue) { done, buffer, err in
     DispatchIO.read(fromFileDescriptor: socket, maxLength: length, runningHandlerOn: readQueue) {
       buffer, err in
       if err != 0 {
         return
       }
       if buffer.count > 0 {
-        print("OK")
+        buffer.enumerateBytes { chunk, offset, isLast in
+          // Inside escaping closure, we cannot modify arguments using inout.
+          // Instead, we're modifying intended property based on dataType param.
+          switch dataType {
+          case readDataTypes.headers.rawValue:
+            self.headersData?.append(chunk)
+          default:
+            return
+          }
+        }
       }
     }
   }
