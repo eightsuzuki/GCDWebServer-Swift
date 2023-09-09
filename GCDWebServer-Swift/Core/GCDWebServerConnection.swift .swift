@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2012-2019, Pierre-Olivier Latour
  All rights reserved.
- 
+
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
  * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  * The name of Pierre-Olivier Latour may not be used to endorse
  or promote products derived from this software without specific
  prior written permission.
- 
+
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -25,8 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-import os
 import Foundation
+import os
 
 let kHeadersReadCapacity = 1024
 
@@ -35,12 +35,11 @@ typealias ReadCompletionBlock = (_ success: Bool) -> Void
 typealias ReadHeadersCompletionBlock = (_ extraData: Data?) -> Void
 
 class GCDWebServerConnection {
-  
+
   private let doubleCRLFData: Data = Data(bytes: "\r\n\r\n", count: 4)
-  
+
   private let logger = Logger(subsystem: "GCDWebServerConnection.Logger", category: "main")
 
-  
   private var server: GCDWebServer
 
   private var socket: Int32
@@ -54,31 +53,31 @@ class GCDWebServerConnection {
   private enum readDataTypes: Int {
     case headers
   }
-  
-  public init(with server: GCDWebServer, socket: Int32){
+
+  public init(with server: GCDWebServer, socket: Int32) {
     self.server = server
     self.socket = socket
-    
+
     readRequestHeaders()
   }
-  
+
   private func readRequestHeaders() {
     headersData = Data(capacity: kHeadersReadCapacity)
     requestMessage = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, true).takeRetainedValue()
-    readHeaders() { extraData in
+    readHeaders { extraData in
       if let extraData {
         self.logger.info("received")
       } else {
         self.logger.info("aborted")
       }
     }
-    
+
     let method = "GET"
     let url = URL(string: "localhost")!
     let headers: [String: String] = [:]
     let path = "/home"
     let query: [String: String] = [:]
-    
+
     for handler in server.handlers {
       let request = handler.matchBlock(method, url, headers, path, query)
       if let request {
@@ -87,11 +86,12 @@ class GCDWebServerConnection {
       }
     }
   }
-  
+
   private func readHeaders(with block: @escaping ReadHeadersCompletionBlock) {
     readData(dataType: readDataTypes.headers.rawValue, with: Int.max) { success in
       if success {
-        let range = self.headersData?.range(of: self.doubleCRLFData, options: [], in: 0..<self.headersData!.count)
+        let range = self.headersData?.range(
+          of: self.doubleCRLFData, options: [], in: 0..<self.headersData!.count)
         if let range, !range.isEmpty {
           let length = range.lowerBound + range.count
           let headersByteData = [UInt8](self.headersData!)
@@ -109,10 +109,11 @@ class GCDWebServerConnection {
       }
     }
   }
-  
+
   private func readData(dataType: Int, with length: Int, block: @escaping ReadCompletionBlock) {
     let readQueue = DispatchQueue(label: "GCDWebServerConnection.readQueue")
-    DispatchIO.read(fromFileDescriptor: socket, maxLength: length, runningHandlerOn: readQueue) { buffer, err in
+    DispatchIO.read(fromFileDescriptor: socket, maxLength: length, runningHandlerOn: readQueue) {
+      buffer, err in
       if err != 0 {
         block(false)
       }
@@ -133,13 +134,13 @@ class GCDWebServerConnection {
       }
     }
   }
-  
+
   /// Only used for avoiding unused warning.
   public func echo() {}
 }
 
 extension GCDWebServerConnection {
-  
+
   public func isRequestNull() -> Bool {
     return request == nil
   }
