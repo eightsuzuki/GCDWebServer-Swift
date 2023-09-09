@@ -201,6 +201,7 @@ public class GCDWebServer {
   }
 
   /// This function must be called after calling start to leave disptach group.
+  /// We need to confirm this method will wait for all running processes to finish.
   public func stop() {
     source4?.cancel()
     source4 = nil

@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2012-2019, Pierre-Olivier Latour
  All rights reserved.
-
+ 
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
  * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  * The name of Pierre-Olivier Latour may not be used to endorse
  or promote products derived from this software without specific
  prior written permission.
-
+ 
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -35,58 +35,64 @@ typealias ReadCompletionBlock = (_ success: Bool) -> Void
 typealias ReadHeadersCompletionBlock = (_ extraData: Data?) -> Void
 
 class GCDWebServerConnection {
-
+  
   private let doubleCRLFData: Data = Data(bytes: "\r\n\r\n", count: 4)
-
+  
   private let logger = Logger(subsystem: "GCDWebServerConnection.Logger", category: "main")
-
+  
   private var server: GCDWebServer
-
+  
   private var socket: Int32
-
+  
   private var request: GCDWebServerRequest?
-
+  
   private var headersData: Data?
-
+  
   private var requestMessage: CFHTTPMessage?
-
+  
   private enum readDataTypes: Int {
     case headers
   }
-
+  
   public init(with server: GCDWebServer, socket: Int32) {
     self.server = server
     self.socket = socket
-
+    
     readRequestHeaders()
   }
-
+  
   private func readRequestHeaders() {
-    headersData = Data(capacity: kHeadersReadCapacity)
-    requestMessage = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, true).takeRetainedValue()
+    self.headersData = Data(capacity: kHeadersReadCapacity)
+    self.requestMessage = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, true).takeRetainedValue()
     readHeaders { extraData in
       if let extraData {
-        self.logger.info("received")
-      } else {
-        self.logger.info("aborted")
-      }
-    }
-
-    let method = "GET"
-    let url = URL(string: "localhost")!
-    let headers: [String: String] = [:]
-    let path = "/home"
-    let query: [String: String] = [:]
-
-    for handler in server.handlers {
-      let request = handler.matchBlock(method, url, headers, path, query)
-      if let request {
-        self.request = request
-        break
+        let requestMethod: CFString? = CFHTTPMessageCopyRequestMethod(self.requestMessage!)?.takeRetainedValue()
+        let requestHeaders: CFDictionary? = CFHTTPMessageCopyAllHeaderFields(self.requestMessage!)?.takeRetainedValue()
+        let requestURL: CFURL? = CFHTTPMessageCopyRequestURL(self.requestMessage!)?.takeRetainedValue()
+        // requestPath and requestQuery should be escaped later.
+        let requestPath: String = requestURL != nil ? CFURLCopyPath(requestURL)! as String : "/"
+        let requestQuery: [String: String] = [:]
+        
+        if let requestMethod, let requestHeaders, let requestURL {
+          let method = requestMethod as String
+          let headers = requestHeaders as! [String: String]
+          let url = requestURL as URL
+          let path = requestPath
+          let query = requestQuery
+          
+          for handler in self.server.handlers {
+            let request = handler.matchBlock(method, url, headers, path, query)
+            if let request {
+              self.request = request
+              self.logger.info("received")
+              break
+            }
+          }
+        }
       }
     }
   }
-
+  
   private func readHeaders(with block: @escaping ReadHeadersCompletionBlock) {
     readData(dataType: readDataTypes.headers.rawValue, with: Int.max) { success in
       if success {
@@ -95,7 +101,7 @@ class GCDWebServerConnection {
         if let range, !range.isEmpty {
           let length = range.lowerBound + range.count
           let headersByteData = [UInt8](self.headersData!)
-
+          
           if !CFHTTPMessageAppendBytes(self.requestMessage!, headersByteData, length) {
             block(nil)
           }
@@ -109,7 +115,7 @@ class GCDWebServerConnection {
       }
     }
   }
-
+  
   private func readData(dataType: Int, with length: Int, block: @escaping ReadCompletionBlock) {
     let readQueue = DispatchQueue(label: "GCDWebServerConnection.readQueue")
     DispatchIO.read(fromFileDescriptor: socket, maxLength: length, runningHandlerOn: readQueue) {
@@ -134,14 +140,14 @@ class GCDWebServerConnection {
       }
     }
   }
-
+  
   /// Only used for avoiding unused warning.
   public func echo() {}
 }
 
 extension GCDWebServerConnection {
-
+  
   public func isRequestNull() -> Bool {
-    return request == nil
+    return self.request == nil
   }
 }
