@@ -8,7 +8,7 @@ extension GCDWebServer {
   }
 
   func request(
-    with method: String, url: URL, headers: [String: String], path: String, query: [String: String]
+    with method: String, url: URL, headers: [String: String], path: String, query: String
   ) -> GCDWebServerRequest? {
     for handler in handlers {
       let request = handler.matchBlock(method, url, headers, path, query)

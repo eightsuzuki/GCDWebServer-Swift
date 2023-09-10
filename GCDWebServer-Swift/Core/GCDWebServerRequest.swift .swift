@@ -37,10 +37,10 @@ public class GCDWebServerRequest {
 
   private var path: String
 
-  private var query: [String: String]
+  private var query: String
 
   public init(
-    with method: String, url: URL, headers: [String: String], path: String, query: [String: String]
+    with method: String, url: URL, headers: [String: String], path: String, query: String
   ) {
     self.method = method
     self.url = url

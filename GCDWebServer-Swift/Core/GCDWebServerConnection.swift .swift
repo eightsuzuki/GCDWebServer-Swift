@@ -30,9 +30,17 @@ import os
 
 let kHeadersReadCapacity = 1024
 
+enum GCDWebServerServerErrorHTTPStatusCode: Int {
+  case notImplemented = 501
+}
+
 typealias ReadCompletionBlock = (_ success: Bool) -> Void
 
 typealias ReadHeadersCompletionBlock = (_ extraData: Data?) -> Void
+
+typealias WriteHeadersCompletionBlock = (_ success: Bool) -> Void
+
+typealias WriteDataCompletionBlock = (_ success: Bool) -> Void
 
 class GCDWebServerConnection {
   
@@ -50,6 +58,10 @@ class GCDWebServerConnection {
   
   private var requestMessage: CFHTTPMessage?
   
+  private var responseMessage: CFHTTPMessage?
+  
+  private var statusCode: Int?
+  
   private enum readDataTypes: Int {
     case headers
   }
@@ -59,6 +71,33 @@ class GCDWebServerConnection {
     self.socket = socket
     
     readRequestHeaders()
+  }
+  
+  // MARK: Read
+  
+  private func readData(dataType: Int, with length: Int, block: @escaping ReadCompletionBlock) {
+    let readQueue = DispatchQueue(label: "GCDWebServerConnection.readQueue")
+    DispatchIO.read(fromFileDescriptor: socket, maxLength: length, runningHandlerOn: readQueue) {
+      buffer, err in
+      if err != 0 {
+        block(false)
+      }
+      if buffer.count > 0 {
+        buffer.enumerateBytes { chunk, offset, isLast in
+          // Inside escaping closure, we cannot modify arguments using inout.
+          // Instead, we're modifying intended property based on dataType param.
+          switch dataType {
+          case readDataTypes.headers.rawValue:
+            self.headersData?.append(chunk)
+          default:
+            return
+          }
+        }
+        block(true)
+      } else {
+        block(false)
+      }
+    }
   }
   
   private func readRequestHeaders() {
@@ -71,9 +110,10 @@ class GCDWebServerConnection {
         let requestURL: CFURL? = CFHTTPMessageCopyRequestURL(self.requestMessage!)?.takeRetainedValue()
         // requestPath and requestQuery should be escaped later.
         let requestPath: String = requestURL != nil ? CFURLCopyPath(requestURL)! as String : "/"
-        let requestQuery: [String: String] = [:]
+        let charactersToLeaveEscaped: CFString = "" as CFString
+        let requestQuery: String? = requestURL != nil ? CFURLCopyQueryString(requestURL, charactersToLeaveEscaped) as String? : ""
         
-        if let requestMethod, let requestHeaders, let requestURL {
+        if let requestMethod, let requestHeaders, let requestURL, let requestQuery {
           let method = requestMethod as String
           let headers = requestHeaders as! [String: String]
           let url = requestURL as URL
@@ -87,6 +127,9 @@ class GCDWebServerConnection {
               self.logger.info("received")
               break
             }
+          }
+          if self.request == nil {
+            self.abortRequest(with: GCDWebServerServerErrorHTTPStatusCode.notImplemented.rawValue)
           }
         }
       }
@@ -116,30 +159,42 @@ class GCDWebServerConnection {
     }
   }
   
-  private func readData(dataType: Int, with length: Int, block: @escaping ReadCompletionBlock) {
-    let readQueue = DispatchQueue(label: "GCDWebServerConnection.readQueue")
-    DispatchIO.read(fromFileDescriptor: socket, maxLength: length, runningHandlerOn: readQueue) {
-      buffer, err in
-      if err != 0 {
-        block(false)
-      }
-      if buffer.count > 0 {
-        buffer.enumerateBytes { chunk, offset, isLast in
-          // Inside escaping closure, we cannot modify arguments using inout.
-          // Instead, we're modifying intended property based on dataType param.
-          switch dataType {
-          case readDataTypes.headers.rawValue:
-            self.headersData?.append(chunk)
-          default:
-            return
-          }
-        }
-        block(true)
+  // MARK: Request
+  
+  private func abortRequest(with statusCode: Int) {
+    initializeResponseHeaders(with: statusCode)
+    writeHeadersWithCompletionBlock(){ success in }
+  }
+  
+  // MARK: Response
+  
+  private func initializeResponseHeaders(with statusCode: Int) {
+    self.statusCode = statusCode
+    let statusDescription: CFString? = nil
+    self.responseMessage = CFHTTPMessageCreateResponse(kCFAllocatorDefault, statusCode, statusDescription, kCFHTTPVersion1_1).takeRetainedValue()
+  }
+  
+  // MARK: Write
+  
+  private func writeData(data: Data, with completionBlock: @escaping WriteDataCompletionBlock) {
+    let dispatchData = data.withUnsafeBytes { DispatchData(bytes: $0) }
+    let writeQueue = DispatchQueue(label: "GCDWebServerConnection.writeQueue")
+    DispatchIO.write(toFileDescriptor: socket, data: dispatchData, runningHandlerOn: writeQueue) { data, error in
+      if error == 0 {
+        completionBlock(true)
       } else {
-        block(false)
+        completionBlock(false)
       }
     }
   }
+  
+  private func writeHeadersWithCompletionBlock(block: WriteHeadersCompletionBlock) {
+    if let responseMessage = self.responseMessage, let data = CFHTTPMessageCopySerializedMessage(responseMessage) {
+      writeData(data: data.takeRetainedValue() as Data) { success in }
+    }
+  }
+  
+  // MARK: Tmp
   
   /// Only used for avoiding unused warning.
   public func echo() {}

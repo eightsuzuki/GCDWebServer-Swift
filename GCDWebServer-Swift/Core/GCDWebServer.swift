@@ -37,7 +37,7 @@ let GCDWebServerOption_Port = "Port"
 
 public typealias GCDWebServerMatchBlock = (
   _ requestMethod: String, _ requestURL: URL, _ requestHeaders: [String: String], _ urlPath: String,
-  _ urlQuery: [String: String]
+  _ urlQuery: String
 ) -> GCDWebServerRequest?
 
 private func getOption(options: [String: Any]?, key: String, defaultValue: Any) -> Any {
