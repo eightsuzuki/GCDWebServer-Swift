@@ -15,6 +15,9 @@
 		09E1FFDE2AA233DE00C4AE69 /* GCDWebServer+Testing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E1FFDD2AA233DE00C4AE69 /* GCDWebServer+Testing.swift */; };
 		09E1FFE02AA233F700C4AE69 /* GCDWebServerConnection.swift .swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E1FFDF2AA233F700C4AE69 /* GCDWebServerConnection.swift .swift */; };
 		09E1FFE22AA2341D00C4AE69 /* GCDWebServerRequest.swift .swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E1FFE12AA2341D00C4AE69 /* GCDWebServerRequest.swift .swift */; };
+		09ECD3732AAED8DD009A8A57 /* GCDWeBServerFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09ECD3722AAED8DD009A8A57 /* GCDWeBServerFunctions.swift */; };
+		09ECD37C2AAED979009A8A57 /* libGCDWebServer-Swift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 09E1FFBC2A99A19500C4AE69 /* libGCDWebServer-Swift.a */; };
+		09ECD3822AAED981009A8A57 /* GCDWebServerFunctionsTests_swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09ECD37A2AAED979009A8A57 /* GCDWebServerFunctionsTests_swift.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -26,6 +29,13 @@
 			remoteInfo = "GCDWebServer-Swift";
 		};
 		09E1FFD22A99D4BF00C4AE69 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 09E1FFB42A99A19500C4AE69 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 09E1FFBB2A99A19500C4AE69;
+			remoteInfo = "GCDWebServer-Swift";
+		};
+		09ECD37D2AAED979009A8A57 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 09E1FFB42A99A19500C4AE69 /* Project object */;
 			proxyType = 1;
@@ -56,6 +66,9 @@
 		09E1FFDD2AA233DE00C4AE69 /* GCDWebServer+Testing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GCDWebServer+Testing.swift"; sourceTree = "<group>"; };
 		09E1FFDF2AA233F700C4AE69 /* GCDWebServerConnection.swift .swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GCDWebServerConnection.swift .swift"; sourceTree = "<group>"; };
 		09E1FFE12AA2341D00C4AE69 /* GCDWebServerRequest.swift .swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GCDWebServerRequest.swift .swift"; sourceTree = "<group>"; };
+		09ECD3722AAED8DD009A8A57 /* GCDWeBServerFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDWeBServerFunctions.swift; sourceTree = "<group>"; };
+		09ECD3782AAED979009A8A57 /* GCDWebServerFunctionsTests.swift.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GCDWebServerFunctionsTests.swift.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		09ECD37A2AAED979009A8A57 /* GCDWebServerFunctionsTests_swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDWebServerFunctionsTests_swift.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +95,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		09ECD3752AAED979009A8A57 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				09ECD37C2AAED979009A8A57 /* libGCDWebServer-Swift.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -100,6 +121,7 @@
 				09E1FFBC2A99A19500C4AE69 /* libGCDWebServer-Swift.a */,
 				09E1FFCD2A99D4BF00C4AE69 /* Tests.xctest */,
 				0970EBEA2AA8721600E88014 /* GCDWebServerConnectionTests.xctest */,
+				09ECD3782AAED979009A8A57 /* GCDWebServerFunctionsTests.swift.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -117,6 +139,7 @@
 			children = (
 				09E1FFC72A99C76C00C4AE69 /* GCDWebServerTests.swift */,
 				0970EBEC2AA8721600E88014 /* GCDWebServerConnectionTests.swift */,
+				09ECD37A2AAED979009A8A57 /* GCDWebServerFunctionsTests_swift.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -127,6 +150,7 @@
 				09E1FFBF2A99A19500C4AE69 /* GCDWebServer.swift */,
 				09E1FFE12AA2341D00C4AE69 /* GCDWebServerRequest.swift .swift */,
 				09E1FFDF2AA233F700C4AE69 /* GCDWebServerConnection.swift .swift */,
+				09ECD3722AAED8DD009A8A57 /* GCDWeBServerFunctions.swift */,
 				09E1FFDD2AA233DE00C4AE69 /* GCDWebServer+Testing.swift */,
 			);
 			path = Core;
@@ -188,6 +212,24 @@
 			productReference = 09E1FFCD2A99D4BF00C4AE69 /* Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		09ECD3772AAED979009A8A57 /* GCDWebServerFunctionsTests.swift */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 09ECD37F2AAED979009A8A57 /* Build configuration list for PBXNativeTarget "GCDWebServerFunctionsTests.swift" */;
+			buildPhases = (
+				09ECD3742AAED979009A8A57 /* Sources */,
+				09ECD3752AAED979009A8A57 /* Frameworks */,
+				09ECD3762AAED979009A8A57 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				09ECD37E2AAED979009A8A57 /* PBXTargetDependency */,
+			);
+			name = GCDWebServerFunctionsTests.swift;
+			productName = GCDWebServerFunctionsTests.swift;
+			productReference = 09ECD3782AAED979009A8A57 /* GCDWebServerFunctionsTests.swift.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -205,6 +247,9 @@
 						CreatedOnToolsVersion = 14.3.1;
 					};
 					09E1FFCC2A99D4BF00C4AE69 = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
+					09ECD3772AAED979009A8A57 = {
 						CreatedOnToolsVersion = 14.3.1;
 					};
 				};
@@ -225,6 +270,7 @@
 				09E1FFBB2A99A19500C4AE69 /* GCDWebServer-Swift */,
 				09E1FFCC2A99D4BF00C4AE69 /* Tests */,
 				0970EBE92AA8721600E88014 /* GCDWebServerConnectionTests */,
+				09ECD3772AAED979009A8A57 /* GCDWebServerFunctionsTests.swift */,
 			);
 		};
 /* End PBXProject section */
@@ -238,6 +284,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		09E1FFCB2A99D4BF00C4AE69 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		09ECD3762AAED979009A8A57 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -261,6 +314,7 @@
 				09E1FFE22AA2341D00C4AE69 /* GCDWebServerRequest.swift .swift in Sources */,
 				09E1FFE02AA233F700C4AE69 /* GCDWebServerConnection.swift .swift in Sources */,
 				09E1FFC02A99A19500C4AE69 /* GCDWebServer.swift in Sources */,
+				09ECD3732AAED8DD009A8A57 /* GCDWeBServerFunctions.swift in Sources */,
 				09E1FFDE2AA233DE00C4AE69 /* GCDWebServer+Testing.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -270,7 +324,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				0970EBF42AA8721D00E88014 /* GCDWebServerConnectionTests.swift in Sources */,
+				09ECD3822AAED981009A8A57 /* GCDWebServerFunctionsTests_swift.swift in Sources */,
 				09E1FFD72A99D4C700C4AE69 /* GCDWebServerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		09ECD3742AAED979009A8A57 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -286,6 +348,11 @@
 			isa = PBXTargetDependency;
 			target = 09E1FFBB2A99A19500C4AE69 /* GCDWebServer-Swift */;
 			targetProxy = 09E1FFD22A99D4BF00C4AE69 /* PBXContainerItemProxy */;
+		};
+		09ECD37E2AAED979009A8A57 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 09E1FFBB2A99A19500C4AE69 /* GCDWebServer-Swift */;
+			targetProxy = 09ECD37D2AAED979009A8A57 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -494,6 +561,38 @@
 			};
 			name = Release;
 		};
+		09ECD3802AAED979009A8A57 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = H9UMT4PKB7;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "okuda-semi.GCDWebServerFunctionsTests-swift";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		09ECD3812AAED979009A8A57 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = H9UMT4PKB7;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "okuda-semi.GCDWebServerFunctionsTests-swift";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -529,6 +628,15 @@
 			buildConfigurations = (
 				09E1FFD52A99D4BF00C4AE69 /* Debug */,
 				09E1FFD62A99D4BF00C4AE69 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		09ECD37F2AAED979009A8A57 /* Build configuration list for PBXNativeTarget "GCDWebServerFunctionsTests.swift" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				09ECD3802AAED979009A8A57 /* Debug */,
+				09ECD3812AAED979009A8A57 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
