@@ -129,13 +129,17 @@ class GCDWebServerConnection {
             let request = handler.matchBlock(method, url, headers, path, query)
             if let request {
               self.request = request
-              self.logger.info("received")
               break
             }
           }
           if self.request == nil {
             self.abortRequest(with: GCDWebServerServerErrorHTTPStatusCode.notImplemented.rawValue)
+            return
           }
+          if !self.request!.hasBody() {
+            return
+          }
+          self.logger.info("received")
         }
       }
     }

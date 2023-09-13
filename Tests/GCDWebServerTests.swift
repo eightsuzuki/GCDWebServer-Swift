@@ -3,7 +3,7 @@ import XCTest
 
 @testable import GCDWebServer_Swift
 
-final class Tests: XCTestCase {
+final class GCDWebServerTest: XCTestCase {
 
   private var capturedLogMessages = [String]()
 
@@ -61,7 +61,7 @@ final class Tests: XCTestCase {
 
     if connect(clientSocket, &bindRemoteAddr4, socklen_t(MemoryLayout<sockaddr_in>.size)) == 0 {
       let request =
-        "GET /test HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0\r\nAccept-Language: en-US,en;q=0.5\r\nConnection: keep-alive\r\n\r\nThis is the message body, if present.\r\n"
+        "GET /test?k1=v1&k2=v2 HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0\r\nAccept-Language: en-US,en;q=0.5\r\nContent-Type: application/json\r\nConnection: keep-alive\r\n\r\nThis is the message body, if present.\r\n"
       let sentBytes = send(clientSocket, request, request.utf8.count, 0)
       if sentBytes < 0 {
         server.stop()

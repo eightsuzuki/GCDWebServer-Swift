@@ -39,6 +39,8 @@ public class GCDWebServerRequest {
 
   private var query: String
 
+  public var contentType: String?
+
   public init(
     with method: String, url: URL, headers: [String: String], path: String, query: String
   ) {
@@ -47,5 +49,11 @@ public class GCDWebServerRequest {
     self.headers = headers
     self.path = path
     self.query = query
+
+    self.contentType = GCDWebServerNormalizeHeaderValue(self.headers["Content-Type"])
+  }
+
+  public func hasBody() -> Bool {
+    return self.contentType != nil
   }
 }
