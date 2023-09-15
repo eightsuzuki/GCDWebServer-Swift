@@ -42,9 +42,12 @@ public typealias GCDWebServerMatchBlock = (
 
 public typealias GCDWebServerCompletionBlock = (_ response: GCDWebServerResponse?) -> Void
 
-public typealias GCDWebServerProcessBlock = (_ request: GCDWebServerRequest) -> GCDWebServerResponse?
+public typealias GCDWebServerProcessBlock = (_ request: GCDWebServerRequest) ->
+  GCDWebServerResponse?
 
-public typealias GCDWebServerAsyncProcessBlock = (_ request: GCDWebServerRequest, _ completionBlock: GCDWebServerCompletionBlock) -> Void
+public typealias GCDWebServerAsyncProcessBlock = (
+  _ request: GCDWebServerRequest, _ completionBlock: GCDWebServerCompletionBlock
+) -> Void
 
 private func getOption(options: [String: Any]?, key: String, defaultValue: Any) -> Any {
   if let value = options?[key] {
@@ -56,10 +59,13 @@ private func getOption(options: [String: Any]?, key: String, defaultValue: Any) 
 public class GCDWebServerHandler {
 
   public var matchBlock: GCDWebServerMatchBlock
-  
+
   public var asyncProcessBlock: GCDWebServerAsyncProcessBlock
 
-  init(mathcBlock: @escaping GCDWebServerMatchBlock, asyncProcessBlock: @escaping GCDWebServerAsyncProcessBlock) {
+  init(
+    mathcBlock: @escaping GCDWebServerMatchBlock,
+    asyncProcessBlock: @escaping GCDWebServerAsyncProcessBlock
+  ) {
     self.matchBlock = mathcBlock
     self.asyncProcessBlock = asyncProcessBlock
   }
@@ -79,17 +85,20 @@ public class GCDWebServer {
     handlers = []
     sourceGroup = DispatchGroup()
   }
-  
-  public func addHandler(for method: String, regex: String, processBlock: @escaping GCDWebServerProcessBlock) {
+
+  public func addHandler(
+    for method: String, regex: String, processBlock: @escaping GCDWebServerProcessBlock
+  ) {
     let asyncProcessBlock: GCDWebServerAsyncProcessBlock = { request, completionBlock in
       completionBlock(processBlock(request))
     }
-    
+
     addHandler(for: method, regex: regex, asyncProcessBlock: asyncProcessBlock)
   }
-  
 
-  public func addHandler(for method: String, regex: String, asyncProcessBlock: @escaping GCDWebServerAsyncProcessBlock) {
+  public func addHandler(
+    for method: String, regex: String, asyncProcessBlock: @escaping GCDWebServerAsyncProcessBlock
+  ) {
     let expression: NSRegularExpression?
     do {
       expression = try NSRegularExpression(pattern: regex, options: .caseInsensitive)
@@ -115,8 +124,11 @@ public class GCDWebServer {
       addHandler(with: matchBlock, asyncProcessBlock: asyncProcessBlock)
     }
   }
-  
-  public func addHandler(with matckBlock: @escaping GCDWebServerMatchBlock, asyncProcessBlock: @escaping GCDWebServerAsyncProcessBlock) {
+
+  public func addHandler(
+    with matckBlock: @escaping GCDWebServerMatchBlock,
+    asyncProcessBlock: @escaping GCDWebServerAsyncProcessBlock
+  ) {
     let handler = GCDWebServerHandler(mathcBlock: matckBlock, asyncProcessBlock: asyncProcessBlock)
     handlers.insert(handler, at: 0)
   }

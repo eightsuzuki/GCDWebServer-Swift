@@ -46,7 +46,6 @@ typealias WriteHeadersCompletionBlock = (_ success: Bool) -> Void
 
 typealias WriteDataCompletionBlock = (_ success: Bool) -> Void
 
-
 class GCDWebServerConnection {
 
   private let doubleCRLFData: Data = Data(bytes: "\r\n\r\n", count: 4)
@@ -54,7 +53,7 @@ class GCDWebServerConnection {
   private let logger = Logger(subsystem: "GCDWebServerConnection.Logger", category: "main")
 
   private var server: GCDWebServer
-  
+
   private var handler: GCDWebServerHandler?
 
   private var socket: Int32
@@ -182,24 +181,27 @@ class GCDWebServerConnection {
     initializeResponseHeaders(with: statusCode)
     writeHeadersWithCompletionBlock { success in }
   }
-  
+
   private func startProcessingRequest() {
-//    let prefilghtResponse = preflightRequest()
+    //    let prefilghtResponse = preflightRequest()
     // Following code will be added later.
   }
-  
+
   private func preflightRequest() -> GCDWebServerResponse? {
     var response: GCDWebServerResponse? = nil
     let authenticated = false
-    
+
     // authetication check should be added later.
     if !authenticated {
-      response = GCDWebServerResponse.response(with: GCDWebServerHTTPStatusCode.unauthorized.rawValue)
+      response = GCDWebServerResponse.response(
+        with: GCDWebServerHTTPStatusCode.unauthorized.rawValue)
     }
     return response
   }
-  
-  private func processRequest(_ request: GCDWebServerRequest, with completion: @escaping GCDWebServerCompletionBlock) {
+
+  private func processRequest(
+    _ request: GCDWebServerRequest, with completion: @escaping GCDWebServerCompletionBlock
+  ) {
     self.handler?.asyncProcessBlock(request, completion)
   }
 
