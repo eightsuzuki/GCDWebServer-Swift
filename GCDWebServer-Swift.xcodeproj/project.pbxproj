@@ -18,6 +18,7 @@
 		09ECD3732AAED8DD009A8A57 /* GCDWeBServerFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09ECD3722AAED8DD009A8A57 /* GCDWeBServerFunctions.swift */; };
 		09ECD37C2AAED979009A8A57 /* libGCDWebServer-Swift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 09E1FFBC2A99A19500C4AE69 /* libGCDWebServer-Swift.a */; };
 		09ECD3822AAED981009A8A57 /* GCDWebServerFunctionsTests_swift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09ECD37A2AAED979009A8A57 /* GCDWebServerFunctionsTests_swift.swift */; };
+		09ECD3842AB4A59C009A8A57 /* GCDWebServerResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09ECD3832AB4A59C009A8A57 /* GCDWebServerResponse.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +70,7 @@
 		09ECD3722AAED8DD009A8A57 /* GCDWeBServerFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDWeBServerFunctions.swift; sourceTree = "<group>"; };
 		09ECD3782AAED979009A8A57 /* GCDWebServerFunctionsTests.swift.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GCDWebServerFunctionsTests.swift.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		09ECD37A2AAED979009A8A57 /* GCDWebServerFunctionsTests_swift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDWebServerFunctionsTests_swift.swift; sourceTree = "<group>"; };
+		09ECD3832AB4A59C009A8A57 /* GCDWebServerResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GCDWebServerResponse.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -150,6 +152,7 @@
 				09E1FFBF2A99A19500C4AE69 /* GCDWebServer.swift */,
 				09E1FFE12AA2341D00C4AE69 /* GCDWebServerRequest.swift .swift */,
 				09E1FFDF2AA233F700C4AE69 /* GCDWebServerConnection.swift .swift */,
+				09ECD3832AB4A59C009A8A57 /* GCDWebServerResponse.swift */,
 				09ECD3722AAED8DD009A8A57 /* GCDWeBServerFunctions.swift */,
 				09E1FFDD2AA233DE00C4AE69 /* GCDWebServer+Testing.swift */,
 			);
@@ -316,6 +319,7 @@
 				09E1FFC02A99A19500C4AE69 /* GCDWebServer.swift in Sources */,
 				09ECD3732AAED8DD009A8A57 /* GCDWeBServerFunctions.swift in Sources */,
 				09E1FFDE2AA233DE00C4AE69 /* GCDWebServer+Testing.swift in Sources */,
+				09ECD3842AB4A59C009A8A57 /* GCDWebServerResponse.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

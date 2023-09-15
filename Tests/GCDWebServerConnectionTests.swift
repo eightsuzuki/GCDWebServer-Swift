@@ -6,7 +6,9 @@ final class GCDWebServerConnectionTests: XCTestCase {
 
   func testInit() {
     let server = GCDWebServer()
-    server.addHandler(for: "GET", regex: "/test")
+    server.addHandler(for: "GET", regex: "/test") { _ in
+      return nil
+    }
 
     let fakeSocketFileDescriptor: Int32 = 10
 

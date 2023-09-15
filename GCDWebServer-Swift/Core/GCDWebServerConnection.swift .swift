@@ -30,6 +30,10 @@ import os
 
 let kHeadersReadCapacity = 1024
 
+enum GCDWebServerHTTPStatusCode: Int {
+  case unauthorized = 401
+}
+
 enum GCDWebServerServerErrorHTTPStatusCode: Int {
   case notImplemented = 501
 }
@@ -42,6 +46,7 @@ typealias WriteHeadersCompletionBlock = (_ success: Bool) -> Void
 
 typealias WriteDataCompletionBlock = (_ success: Bool) -> Void
 
+
 class GCDWebServerConnection {
 
   private let doubleCRLFData: Data = Data(bytes: "\r\n\r\n", count: 4)
@@ -49,6 +54,8 @@ class GCDWebServerConnection {
   private let logger = Logger(subsystem: "GCDWebServerConnection.Logger", category: "main")
 
   private var server: GCDWebServer
+  
+  private var handler: GCDWebServerHandler?
 
   private var socket: Int32
 
@@ -126,6 +133,7 @@ class GCDWebServerConnection {
           let query = requestQuery
 
           for handler in self.server.handlers {
+            self.handler = handler
             let request = handler.matchBlock(method, url, headers, path, query)
             if let request {
               self.request = request
@@ -173,6 +181,26 @@ class GCDWebServerConnection {
   private func abortRequest(with statusCode: Int) {
     initializeResponseHeaders(with: statusCode)
     writeHeadersWithCompletionBlock { success in }
+  }
+  
+  private func startProcessingRequest() {
+//    let prefilghtResponse = preflightRequest()
+    // Following code will be added later.
+  }
+  
+  private func preflightRequest() -> GCDWebServerResponse? {
+    var response: GCDWebServerResponse? = nil
+    let authenticated = false
+    
+    // authetication check should be added later.
+    if !authenticated {
+      response = GCDWebServerResponse.response(with: GCDWebServerHTTPStatusCode.unauthorized.rawValue)
+    }
+    return response
+  }
+  
+  private func processRequest(_ request: GCDWebServerRequest, with completion: @escaping GCDWebServerCompletionBlock) {
+    self.handler?.asyncProcessBlock(request, completion)
   }
 
   // MARK: Response
