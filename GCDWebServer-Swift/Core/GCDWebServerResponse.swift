@@ -29,11 +29,19 @@ import Foundation
 
 public class GCDWebServerResponse {
 
-  private var statusCode: Int?
+  public var statusCode: Int
 
-  public init(statusCode: Int?) {
+  private var contentType: String?
+
+  public init(statusCode: Int) {
     self.statusCode = statusCode
   }
+
+  public func hasBody() -> Bool {
+    return self.contentType != nil
+  }
+
+  // MARK: Class methods
 
   class func response(with statusCode: Int) -> GCDWebServerResponse {
     return GCDWebServerResponse(statusCode: statusCode)

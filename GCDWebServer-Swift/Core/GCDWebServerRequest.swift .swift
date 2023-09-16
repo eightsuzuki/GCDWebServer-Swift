@@ -29,7 +29,7 @@ import Foundation
 
 public class GCDWebServerRequest {
 
-  private var method: String
+  public var method: String
 
   private var url: URL
 
