@@ -43,6 +43,7 @@ enum GCDWebServerClientErrorHTTPStatusCode: Int {
 
 ///  Convenience constants for "server error" HTTP status codes.
 enum GCDWebServerServerErrorHTTPStatusCode: Int {
+  case internalServerError = 500
   case notImplemented = 501
 }
 
@@ -245,6 +246,7 @@ class GCDWebServerConnection {
     // Currently, the following line always fails.
     if response.hasBody() {
       // TODO: Replace true with self.virtualHEAD
+      // TODO: Implement prepareForReading of GCDWebServerResponse and call it here.
       hasBody = true
     }
 
@@ -264,6 +266,8 @@ class GCDWebServerConnection {
           // TODO: Implement performClose of GCDWebServerResponse and call it here.
         }
       }
+    } else {
+      abortRequest(with: GCDWebServerServerErrorHTTPStatusCode.internalServerError.rawValue)
     }
   }
 
