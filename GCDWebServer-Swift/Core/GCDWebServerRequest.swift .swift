@@ -36,7 +36,27 @@ import Foundation
 ///
 ///  @warning These methods can be called on any GCD thread.
 protocol GCDWebServerBodyWriter {
+  /// This method is called when the connection is opened.
+  ///
+  /// Return NO to reject the connection e.g. after validating the local
+  /// or remote address.
+  func open() -> Bool
 
+  /**
+   *  This method is called whenever body data has been received.
+   *
+   *  It should return true on success or false on failure and set the "error" argument
+   *  which is guaranteed to be non-NULL.
+   */
+  func write(data: Data) -> Bool
+
+  /**
+   *  This method is called after all body data has been received.
+   *
+   *  It should return YES on success or NO on failure and set the "error" argument
+   *  which is guaranteed to be non-NULL.
+   */
+  func close() -> Bool
 }
 
 public class GCDWebServerRequest: GCDWebServerBodyWriter {
@@ -56,6 +76,8 @@ public class GCDWebServerRequest: GCDWebServerBodyWriter {
   public var contentType: String?
 
   private var writer: GCDWebServerBodyWriter?
+
+  private var opened: Bool = false
 
   public init(
     with method: String, url: URL, headers: [String: String], path: String, query: String
@@ -86,5 +108,38 @@ public class GCDWebServerRequest: GCDWebServerBodyWriter {
   public func prepareForWriting() {
     self.writer = self
     // TODO: Add gzip writer pattern here.
+  }
+
+  public func performOpen() -> Bool {
+    if self.opened {
+      return false
+    }
+    self.opened = true
+    // TODO: Add error handling when self.writer is null.
+    return self.writer!.open()
+  }
+
+  public func performWriteData(_ data: Data) -> Bool {
+    // TODO: Add error handling when self.writer is null.
+    return self.writer!.write(data: data)
+  }
+
+  public func performClose() -> Bool {
+    // TODO: Add error handling when self.writer is null.
+    return self.writer!.close()
+  }
+
+  // MARK: GCDWebServerBodyWriter
+
+  public func open() -> Bool {
+    return true
+  }
+
+  public func write(data: Data) -> Bool {
+    return true
+  }
+
+  public func close() -> Bool {
+    return true
   }
 }

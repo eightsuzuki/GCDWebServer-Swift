@@ -29,6 +29,7 @@ import Foundation
 import os
 
 let kHeadersReadCapacity = 1024
+let kBodyReadCapacity = 256 * 1024
 
 ///  Convenience constants for "redirection" HTTP status codes.
 enum GCDWebServerRedirectionHTTPStatusCode: Int {
@@ -56,6 +57,8 @@ typealias WriteHeadersCompletionBlock = (_ success: Bool) -> Void
 
 typealias WriteDataCompletionBlock = (_ success: Bool) -> Void
 
+typealias ReadBodyCompletionBlock = (_ success: Bool) -> Void
+
 class GCDWebServerConnection {
 
   private let doubleCRLFData: Data = Data(bytes: "\r\n\r\n", count: 4)
@@ -72,6 +75,8 @@ class GCDWebServerConnection {
 
   private var headersData: Data?
 
+  private var bodyData: Data?
+
   private var requestMessage: CFHTTPMessage?
 
   private var response: GCDWebServerResponse?
@@ -82,6 +87,7 @@ class GCDWebServerConnection {
 
   private enum readDataTypes: Int {
     case headers
+    case body
   }
 
   public init(with server: GCDWebServer, socket: Int32) {
@@ -94,6 +100,7 @@ class GCDWebServerConnection {
   // MARK: Read
 
   private func readData(dataType: Int, with length: Int, block: @escaping ReadCompletionBlock) {
+    // TODO: Add tests for all cases.
     let readQueue = DispatchQueue(label: "GCDWebServerConnection.readQueue")
     DispatchIO.read(fromFileDescriptor: socket, maxLength: length, runningHandlerOn: readQueue) {
       buffer, err in
@@ -107,6 +114,8 @@ class GCDWebServerConnection {
           switch dataType {
           case readDataTypes.headers.rawValue:
             self.headersData?.append(chunk)
+          case readDataTypes.body.rawValue:
+            self.bodyData?.append(chunk)
           default:
             return
           }
@@ -119,6 +128,7 @@ class GCDWebServerConnection {
   }
 
   private func readRequestHeaders() {
+    // TODO: Add tests for all cases.
     self.headersData = Data(capacity: kHeadersReadCapacity)
     self.requestMessage = CFHTTPMessageCreateEmpty(kCFAllocatorDefault, true).takeRetainedValue()
     readHeaders { extraData in
@@ -164,11 +174,17 @@ class GCDWebServerConnection {
           }
 
           self.request!.prepareForWriting()
+          // TODO: Add usesChunkedTransferEncoding property and use it here.
           if extraData.count > self.request!.contentLength {
             self.abortRequest(with: GCDWebServerClientErrorHTTPStatusCode.badRequest.rawValue)
             return
           }
 
+          // TODO: Support Expect header property and use it here.
+          // Note that the above TODO is low prioritized because no common browsers send Expect header.
+          // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Expect
+          // But since cURL sends, supporting is still valuable.
+          self.readBody(with: self.request!.contentLength, initialData: extraData)
           self.logger.info("received")
         }
       }
@@ -176,6 +192,7 @@ class GCDWebServerConnection {
   }
 
   private func readHeaders(with block: @escaping ReadHeadersCompletionBlock) {
+    // TODO: Add tests for all cases.
     readData(dataType: readDataTypes.headers.rawValue, with: Int.max) { success in
       if success {
         let range = self.headersData?.range(
@@ -198,9 +215,74 @@ class GCDWebServerConnection {
     }
   }
 
+  private func readBody(with length: Int, initialData: Data) {
+    // TODO: Add tests for all cases.
+    if !self.request!.performOpen() {
+      self.abortRequest(with: GCDWebServerServerErrorHTTPStatusCode.internalServerError.rawValue)
+      return
+    }
+
+    if !self.request!.performWriteData(initialData) {
+      self.logger.error("Failed writing request body on socket \(self.socket)")
+      if !self.request!.performClose() {
+        self.logger.error("Failed closing request body for socket \(self.socket)")
+      }
+      self.abortRequest(with: GCDWebServerServerErrorHTTPStatusCode.internalServerError.rawValue)
+    }
+    let remainingLength = length - initialData.count
+
+    if remainingLength > 0 {
+      self.readBody(with: remainingLength) { success in
+        if self.request!.performClose() {
+          self.startProcessingRequest()
+        } else {
+          self.logger.error("Failed closing request body for socket \(self.socket)")
+          self.abortRequest(
+            with: GCDWebServerServerErrorHTTPStatusCode.internalServerError.rawValue)
+        }
+      }
+    } else {
+      if self.request!.performClose() {
+        self.startProcessingRequest()
+      } else {
+        self.logger.error("Failed closing request body for socket \(self.socket)")
+        self.abortRequest(with: GCDWebServerServerErrorHTTPStatusCode.internalServerError.rawValue)
+      }
+    }
+  }
+
+  private func readBody(with length: Int, completionBlock: @escaping ReadBodyCompletionBlock) {
+    // TODO: Add tests for all cases.
+    self.bodyData = Data(capacity: kBodyReadCapacity)
+    self.readData(dataType: readDataTypes.body.rawValue, with: length) { success in
+      if !success {
+        completionBlock(false)
+        return
+      }
+
+      if self.bodyData!.count > length {
+        self.logger.error("Unexpected extra content reading request body on socket \(self.socket)")
+        completionBlock(false)
+      }
+
+      if !self.request!.performWriteData(self.bodyData!) {
+        self.logger.error("Failed writing request body on socket \(self.socket)")
+        completionBlock(false)
+      }
+
+      let remainingLength = length - self.bodyData!.count
+      if remainingLength > 0 {
+        self.readBody(with: remainingLength, completionBlock: completionBlock)
+      } else {
+        completionBlock(true)
+      }
+    }
+  }
+
   // MARK: Write
 
   private func writeData(data: Data, with completionBlock: @escaping WriteDataCompletionBlock) {
+    // TODO: Add tests for all cases.
     let dispatchData = data.withUnsafeBytes { DispatchData(bytes: $0) }
     let writeQueue = DispatchQueue(label: "GCDWebServerConnection.writeQueue")
     DispatchIO.write(toFileDescriptor: socket, data: dispatchData, runningHandlerOn: writeQueue) {
@@ -214,6 +296,7 @@ class GCDWebServerConnection {
   }
 
   private func writeHeadersWithCompletionBlock(block: WriteHeadersCompletionBlock) {
+    // TODO: Add tests for all cases.
     if let responseMessage = self.responseMessage,
       let data = CFHTTPMessageCopySerializedMessage(responseMessage)
     {
@@ -224,11 +307,13 @@ class GCDWebServerConnection {
   // MARK: Request
 
   private func abortRequest(with statusCode: Int) {
+    // TODO: Add tests for all cases.
     initializeResponseHeaders(with: statusCode)
     writeHeadersWithCompletionBlock { success in }
   }
 
   private func startProcessingRequest() {
+    // TODO: Add tests for all cases.
     let prefilghtResponse = preflightRequest()
     // TODO: Add else block.
     if let prefilghtResponse {
@@ -237,6 +322,7 @@ class GCDWebServerConnection {
   }
 
   private func preflightRequest() -> GCDWebServerResponse? {
+    // TODO: Add tests for all cases.
     var response: GCDWebServerResponse? = nil
     let authenticated = false
 
@@ -255,6 +341,7 @@ class GCDWebServerConnection {
   }
 
   private func finishProcessingRequest(response: GCDWebServerResponse) {
+    // TODO: Add tests for all cases.
     let response = overrideResponse(response, for: self.request!)
     var hasBody = false
 
@@ -300,6 +387,7 @@ class GCDWebServerConnection {
   private func overrideResponse(_ response: GCDWebServerResponse, for request: GCDWebServerRequest)
     -> GCDWebServerResponse
   {
+    // TODO: Add tests for all cases.
     let overrittenResponse = response
     // TODO: Add response properties and logic with them.
     // TODO: Add test cases which cause overriding.
