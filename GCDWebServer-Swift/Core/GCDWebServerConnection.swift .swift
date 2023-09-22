@@ -37,6 +37,7 @@ enum GCDWebServerRedirectionHTTPStatusCode: Int {
 
 ///  Convenience constants for "client error" HTTP status codes.
 enum GCDWebServerClientErrorHTTPStatusCode: Int {
+  case badRequest = 400
   case unauthorized = 401
   case preconditionFailed = 412
 }
@@ -150,16 +151,24 @@ class GCDWebServerConnection {
               break
             }
           }
+
           if self.request == nil {
             self.abortRequest(with: GCDWebServerServerErrorHTTPStatusCode.notImplemented.rawValue)
             return
           }
+
           if !self.request!.hasBody() {
             // TODO: Add test cases to verify the following line.
             self.startProcessingRequest()
             return
           }
+
           self.request!.prepareForWriting()
+          if extraData.count > self.request!.contentLength {
+            self.abortRequest(with: GCDWebServerClientErrorHTTPStatusCode.badRequest.rawValue)
+            return
+          }
+
           self.logger.info("received")
         }
       }

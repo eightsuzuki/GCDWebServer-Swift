@@ -69,8 +69,15 @@ final class GCDWebServerTest: XCTestCase {
     memcpy(&bindRemoteAddr4, &remoteAddr, Int(MemoryLayout<sockaddr_in>.size))
 
     if connect(clientSocket, &bindRemoteAddr4, socklen_t(MemoryLayout<sockaddr_in>.size)) == 0 {
+      let method = "GET"
+      let path = "/test?k1=v1&k2=v2"
+      let host = "www.example.com"
+      let requestBody = "This is the message body, if present."
+      // Need to add \r\n count to calculate Content-Length.
+      let contentLength = requestBody.utf8.count + "\r\n".utf8.count
+      let contentType = "text/plain"
       let request =
-        "GET /test?k1=v1&k2=v2 HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0\r\nAccept-Language: en-US,en;q=0.5\r\nContent-Type: application/json\r\nConnection: keep-alive\r\n\r\nThis is the message body, if present.\r\n"
+        "\(method) \(path) HTTP/1.1\r\nHost: \(host)\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0\r\nAccept-Language: en-US,en;q=0.5\r\nContent-Length: \(contentLength)\r\nContent-Type: \(contentType)\r\nConnection: keep-alive\r\n\r\n\(requestBody)\r\n"
       let sentBytes = send(clientSocket, request, request.utf8.count, 0)
       if sentBytes < 0 {
         server.stop()
