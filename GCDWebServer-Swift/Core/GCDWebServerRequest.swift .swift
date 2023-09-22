@@ -27,7 +27,19 @@
 
 import Foundation
 
-public class GCDWebServerRequest {
+///  This protocol is used by the GCDWebServerConnection to communicate with
+///  the GCDWebServerRequest and write the received HTTP body data.
+///
+///  Note that multiple GCDWebServerBodyWriter objects can be chained together
+///  internally e.g. to automatically decode gzip encoded content before
+///  passing it on to the GCDWebServerRequest.
+///
+///  @warning These methods can be called on any GCD thread.
+protocol GCDWebServerBodyWriter {
+
+}
+
+public class GCDWebServerRequest: GCDWebServerBodyWriter {
 
   public var method: String
 
@@ -41,6 +53,8 @@ public class GCDWebServerRequest {
 
   public var contentType: String?
 
+  private var writer: GCDWebServerBodyWriter?
+
   public init(
     with method: String, url: URL, headers: [String: String], path: String, query: String
   ) {
@@ -53,7 +67,16 @@ public class GCDWebServerRequest {
     self.contentType = GCDWebServerNormalizeHeaderValue(self.headers["Content-Type"])
   }
 
+  // MARK: Status check
+
   public func hasBody() -> Bool {
     return self.contentType != nil
+  }
+
+  // MARK: Write
+
+  public func prepareForWriting() {
+    self.writer = self
+    // TODO: Add gzip writer pattern here.
   }
 }

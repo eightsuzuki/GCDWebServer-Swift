@@ -155,8 +155,11 @@ class GCDWebServerConnection {
             return
           }
           if !self.request!.hasBody() {
+            // TODO: Add test cases to verify the following line.
+            self.startProcessingRequest()
             return
           }
+          self.request!.prepareForWriting()
           self.logger.info("received")
         }
       }
@@ -217,8 +220,11 @@ class GCDWebServerConnection {
   }
 
   private func startProcessingRequest() {
-    //    let prefilghtResponse = preflightRequest()
-    // Following code will be added later.
+    let prefilghtResponse = preflightRequest()
+    // TODO: Add else block.
+    if let prefilghtResponse {
+      finishProcessingRequest(response: prefilghtResponse)
+    }
   }
 
   private func preflightRequest() -> GCDWebServerResponse? {
@@ -250,6 +256,7 @@ class GCDWebServerConnection {
       hasBody = true
     }
 
+    // TODO: Implement performOpen of GCDWebServerResponse and call it here.
     if !hasBody {
       self.response = response
     }
