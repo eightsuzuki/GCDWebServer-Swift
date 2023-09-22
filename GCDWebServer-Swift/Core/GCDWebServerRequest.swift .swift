@@ -42,20 +42,16 @@ protocol GCDWebServerBodyWriter {
   /// or remote address.
   func open() -> Bool
 
-  /**
-   *  This method is called whenever body data has been received.
-   *
-   *  It should return true on success or false on failure and set the "error" argument
-   *  which is guaranteed to be non-NULL.
-   */
+  ///  This method is called whenever body data has been received.
+  ///
+  /// It should return true on success or false on failure and set the "error" argument
+  /// which is guaranteed to be non-NULL.
   func write(data: Data) -> Bool
 
-  /**
-   *  This method is called after all body data has been received.
-   *
-   *  It should return YES on success or NO on failure and set the "error" argument
-   *  which is guaranteed to be non-NULL.
-   */
+  ///  This method is called after all body data has been received.
+  ///
+  ///   It should return YES on success or NO on failure and set the "error" argument
+  ///   which is guaranteed to be non-NULL.
   func close() -> Bool
 }
 

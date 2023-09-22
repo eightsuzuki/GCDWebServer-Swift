@@ -25,33 +25,29 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+// http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+// http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
+
 import Foundation
 
-public class GCDWebServerResponse {
+enum GCDWebServerSuccessfulHTTPStatusCode: Int {
+  case ok = 200
+}
 
-  public var statusCode: Int
+///  Convenience constants for "redirection" HTTP status codes.
+enum GCDWebServerRedirectionHTTPStatusCode: Int {
+  case notModified = 304
+}
 
-  private var contentType: String?
+///  Convenience constants for "client error" HTTP status codes.
+enum GCDWebServerClientErrorHTTPStatusCode: Int {
+  case badRequest = 400
+  case unauthorized = 401
+  case preconditionFailed = 412
+}
 
-  private var contentLength: Int
-
-  public init() {
-    self.statusCode = GCDWebServerSuccessfulHTTPStatusCode.ok.rawValue
-    self.contentLength = .max
-  }
-
-  public convenience init(statusCode: Int) {
-    self.init()
-    self.statusCode = statusCode
-  }
-
-  public func hasBody() -> Bool {
-    return self.contentType != nil
-  }
-
-  // MARK: Class methods
-
-  class func response(with statusCode: Int) -> GCDWebServerResponse {
-    return GCDWebServerResponse(statusCode: statusCode)
-  }
+///  Convenience constants for "server error" HTTP status codes.
+enum GCDWebServerServerErrorHTTPStatusCode: Int {
+  case internalServerError = 500
+  case notImplemented = 501
 }

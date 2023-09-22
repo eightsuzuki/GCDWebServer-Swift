@@ -27,31 +27,28 @@
 
 import Foundation
 
-public class GCDWebServerResponse {
+public class GCDWebServerDataResponse: GCDWebServerResponse {
 
-  public var statusCode: Int
+  public var contentType: String?
 
-  private var contentType: String?
+  private var contentLength: Int = .max
 
-  private var contentLength: Int
-
-  public init() {
-    self.statusCode = GCDWebServerSuccessfulHTTPStatusCode.ok.rawValue
-    self.contentLength = .max
+  public init(with data: Data, contentType: String) {
+    super.init()
+    self.contentType = contentType
+    self.contentLength = data.count
   }
 
-  public convenience init(statusCode: Int) {
-    self.init()
-    self.statusCode = statusCode
-  }
-
-  public func hasBody() -> Bool {
-    return self.contentType != nil
+  public convenience init?(with html: String) {
+    if let data = html.data(using: .utf8) {
+      self.init(with: data, contentType: "text/html; charset=utf-8")
+    } else {
+      return nil
+    }
   }
 
   // MARK: Class methods
-
-  class func response(with statusCode: Int) -> GCDWebServerResponse {
-    return GCDWebServerResponse(statusCode: statusCode)
+  public class func response(with html: String) -> GCDWebServerDataResponse? {
+    return GCDWebServerDataResponse(with: html)
   }
 }

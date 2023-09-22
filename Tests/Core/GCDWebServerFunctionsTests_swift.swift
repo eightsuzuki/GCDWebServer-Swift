@@ -2,7 +2,7 @@ import Foundation
 import GCDWebServer_Swift
 import XCTest
 
-final class GCDWebServerFunctionTest: XCTestCase {
+final class GCDWebServerFunctionTests: XCTestCase {
   func testGCDWebServerNormalizeHeaderValue() {
     XCTAssertEqual(
       GCDWebServerNormalizeHeaderValue("TEXT/PLAIN; Other-header"), "text/plain; Other-header")

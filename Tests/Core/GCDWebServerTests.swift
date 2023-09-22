@@ -3,7 +3,7 @@ import XCTest
 
 @testable import GCDWebServer_Swift
 
-final class GCDWebServerTest: XCTestCase {
+final class GCDWebServerTests: XCTestCase {
 
   private var capturedLogMessages = [String]()
 
