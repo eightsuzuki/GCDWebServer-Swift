@@ -50,9 +50,11 @@ final class GCDWebServerTests: XCTestCase {
   }
 
   func testStart() {
+    let isResponseUsed = expectation(description: "Check if a registered response is used.")
     let server = GCDWebServer()
 
     server.addHandler(for: "GET", regex: "/test") { _ in
+      isResponseUsed.fulfill()
       return GCDWebServerDataResponse(html: "<html><body><p>Hello World</p></body></html>")
     }
 
@@ -67,28 +69,7 @@ final class GCDWebServerTests: XCTestCase {
     var bindRemoteAddr4 = sockaddr()
     memcpy(&bindRemoteAddr4, &remoteAddr, Int(MemoryLayout<sockaddr_in>.size))
 
-    if connect(clientSocket, &bindRemoteAddr4, socklen_t(MemoryLayout<sockaddr_in>.size)) == 0 {
-      let method = "GET"
-      let path = "/test?k1=v1&k2=v2"
-      let host = "www.example.com"
-      let requestBody = "This is the message body, if present."
-      // Need to add \r\n count to calculate Content-Length.
-      let contentLength = requestBody.utf8.count + "\r\n".utf8.count
-      let contentType = "text/plain"
-      let request =
-        "\(method) \(path) HTTP/1.1\r\nHost: \(host)\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0\r\nAccept-Language: en-US,en;q=0.5\r\nContent-Length: \(contentLength)\r\nContent-Type: \(contentType)\r\nConnection: keep-alive\r\n\r\n\(requestBody)\r\n"
-      let sentBytes = send(clientSocket, request, request.utf8.count, 0)
-      if sentBytes < 0 {
-        server.stop()
-        close(clientSocket)
-
-        let errorNumber = errno
-        let errorMessage = String(cString: strerror(errorNumber))
-        XCTFail("Send failed with error: \(errorNumber) - \(errorMessage)")
-      } else {
-        close(clientSocket)
-      }
-    } else {
+    if connect(clientSocket, &bindRemoteAddr4, socklen_t(MemoryLayout<sockaddr_in>.size)) != 0 {
       server.stop()
       close(clientSocket)
 
@@ -97,10 +78,27 @@ final class GCDWebServerTests: XCTestCase {
       XCTFail("Connect failed with error: \(errorNumber) - \(errorMessage)")
     }
 
-    server.stop()
+    let method = "GET"
+    let path = "/test?k1=v1&k2=v2"
+    let host = "www.example.com"
+    let requestBody = "This is the message body, if present."
+    // Need to add \r\n count to calculate Content-Length.
+    let contentLength = requestBody.utf8.count + "\r\n".utf8.count
+    let contentType = "text/plain"
+    let request =
+      "\(method) \(path) HTTP/1.1\r\nHost: \(host)\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0\r\nAccept-Language: en-US,en;q=0.5\r\nContent-Length: \(contentLength)\r\nContent-Type: \(contentType)\r\nConnection: keep-alive\r\n\r\n\(requestBody)\r\n"
+    let sentBytes = send(clientSocket, request, request.utf8.count, 0)
+    if sentBytes < 0 {
+      server.stop()
+      close(clientSocket)
 
-    // temporally comment out due to unstable test results.
-    //    let expectedLogKeyWord = "received"
-    //    XCTAssert(isIncludedInLogMessages(logKeyWord: expectedLogKeyWord))
+      let errorNumber = errno
+      let errorMessage = String(cString: strerror(errorNumber))
+      XCTFail("Send failed with error: \(errorNumber) - \(errorMessage)")
+    } else {
+      close(clientSocket)
+    }
+    server.stop()
+    wait(for: [isResponseUsed], timeout: 1)
   }
 }

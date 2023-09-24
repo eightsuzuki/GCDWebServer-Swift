@@ -167,7 +167,6 @@ class GCDWebServerConnection {
           // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Expect
           // But since cURL sends, supporting is still valuable.
           self.readBody(with: self.request!.contentLength, initialData: extraData)
-          self.logger.info("received")
         }
       }
     }
@@ -210,6 +209,7 @@ class GCDWebServerConnection {
         self.logger.error("Failed closing request body for socket \(self.socket)")
       }
       self.abortRequest(with: GCDWebServerServerErrorHTTPStatusCode.internalServerError.rawValue)
+      return
     }
     let remainingLength = length - initialData.count
 
@@ -297,22 +297,23 @@ class GCDWebServerConnection {
   private func startProcessingRequest() {
     // TODO: Add tests for all cases.
     let prefilghtResponse = preflightRequest()
-    // TODO: Add else block.
     if let prefilghtResponse {
       finishProcessingRequest(response: prefilghtResponse)
+    } else {
+      if let request = self.request {
+        processRequest(request) { response in
+          if let response {
+            self.finishProcessingRequest(response: response)
+          }
+        }
+      }
     }
   }
 
   private func preflightRequest() -> GCDWebServerResponse? {
     // TODO: Add tests for all cases.
-    var response: GCDWebServerResponse? = nil
-    let authenticated = false
-
-    // authetication check should be added later.
-    if !authenticated {
-      response = GCDWebServerResponse.response(
-        with: GCDWebServerClientErrorHTTPStatusCode.unauthorized.rawValue)
-    }
+    // TODO: Add authentication check block.
+    let response: GCDWebServerResponse? = nil
     return response
   }
 
@@ -359,6 +360,7 @@ class GCDWebServerConnection {
   // MARK: Response
 
   private func initializeResponseHeaders(with statusCode: Int) {
+    // TODO: Add header values.
     self.statusCode = statusCode
     let statusDescription: CFString? = nil
     self.responseMessage = CFHTTPMessageCreateResponse(
