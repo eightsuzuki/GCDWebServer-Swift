@@ -27,13 +27,34 @@
 
 import Foundation
 
-public class GCDWebServerResponse {
+/// This protocol is used by the GCDWebServerConnection to communicate with
+/// the GCDWebServerResponse and read the HTTP body data to send.
+///
+/// Note that multiple GCDWebServerBodyReader objects can be chained together
+/// internally e.g. to automatically apply gzip encoding to the content before
+/// passing it on to the GCDWebServerResponse.
+///
+/// @warning These methods can be called on any GCD thread.
+protocol GCDWebServerBodyReader {
+
+  /// This method is called before any body data is sent.
+  ///
+  /// It should return YES on success or NO on failure and set the "error" argument
+  /// which is guaranteed to be non-NULL.
+  func open() -> Bool
+}
+
+public class GCDWebServerResponse: GCDWebServerBodyReader {
 
   public var statusCode: Int
 
-  private var contentType: String?
+  public var contentType: String?
 
-  private var contentLength: Int
+  public var contentLength: Int
+
+  private var reader: GCDWebServerBodyReader?
+
+  private var opened: Bool = false
 
   public init() {
     self.statusCode = GCDWebServerSuccessfulHTTPStatusCode.ok.rawValue
@@ -49,9 +70,28 @@ public class GCDWebServerResponse {
     return self.contentType != nil
   }
 
+  public func prepareForReading() {
+    self.reader = self
+    // TODO: Add gzip writer pattern here.
+  }
+
+  public func performOpen() -> Bool {
+    if self.opened || self.reader == nil {
+      return false
+    }
+    self.opened = true
+    return self.reader!.open()
+  }
+
   // MARK: Class methods
 
   class func response(with statusCode: Int) -> GCDWebServerResponse {
     return GCDWebServerResponse(statusCode: statusCode)
+  }
+
+  // MARK: GCDWebServerBodyReader
+
+  func open() -> Bool {
+    return true
   }
 }

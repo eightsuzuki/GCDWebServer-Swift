@@ -50,6 +50,7 @@ final class GCDWebServerTests: XCTestCase {
   }
 
   func testStart() {
+    // TODO: Check if returned response is the same with the expected one.
     let isResponseUsed = expectation(description: "Check if a registered response is used.")
     let server = GCDWebServer()
 

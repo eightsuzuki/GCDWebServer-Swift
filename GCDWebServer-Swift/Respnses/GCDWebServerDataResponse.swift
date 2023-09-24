@@ -29,10 +29,6 @@ import Foundation
 
 public class GCDWebServerDataResponse: GCDWebServerResponse {
 
-  public var contentType: String?
-
-  private var contentLength: Int = .max
-
   public init(with data: Data, contentType: String) {
     super.init()
     self.contentType = contentType

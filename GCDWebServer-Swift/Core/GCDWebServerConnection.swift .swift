@@ -277,12 +277,12 @@ class GCDWebServerConnection {
     }
   }
 
-  private func writeHeadersWithCompletionBlock(block: WriteHeadersCompletionBlock) {
+  private func writeHeaders(with completionBlock: @escaping WriteHeadersCompletionBlock) {
     // TODO: Add tests for all cases.
     if let responseMessage = self.responseMessage,
       let data = CFHTTPMessageCopySerializedMessage(responseMessage)
     {
-      writeData(data: data.takeRetainedValue() as Data) { success in }
+      writeData(data: data.takeRetainedValue() as Data, with: completionBlock)
     }
   }
 
@@ -291,7 +291,7 @@ class GCDWebServerConnection {
   private func abortRequest(with statusCode: Int) {
     // TODO: Add tests for all cases.
     initializeResponseHeaders(with: statusCode)
-    writeHeadersWithCompletionBlock { success in }
+    writeHeaders { success in }
   }
 
   private func startProcessingRequest() {
@@ -328,32 +328,29 @@ class GCDWebServerConnection {
     let response = overrideResponse(response, for: self.request!)
     var hasBody = false
 
-    // Currently, the following line always fails.
     if response.hasBody() {
       // TODO: Replace true with self.virtualHEAD
-      // TODO: Implement prepareForReading of GCDWebServerResponse and call it here.
+      response.prepareForReading()
       hasBody = true
     }
 
     // TODO: Implement performOpen of GCDWebServerResponse and call it here.
-    if !hasBody {
-      self.response = response
+    if hasBody && !response.performOpen() {
+      self.logger.error("Failed opening response body for socket \(self.socket)")
+      return
     }
+    self.response = response
 
-    if self.response != nil {
-      // TODO: Add other response properties and logic with them.
-      initializeResponseHeaders(with: self.response!.statusCode)
-      writeHeadersWithCompletionBlock { success in
-        if success {
-          if hasBody {
-            // TODO: Implement performClose of GCDWebServerResponse and call it here.
-          }
-        } else if hasBody {
+    // TODO: Add other response properties and logic with them.
+    initializeResponseHeaders(with: self.response!.statusCode)
+    writeHeaders { success in
+      if success {
+        if hasBody {
           // TODO: Implement performClose of GCDWebServerResponse and call it here.
         }
+      } else if hasBody {
+        // TODO: Implement performClose of GCDWebServerResponse and call it here.
       }
-    } else {
-      abortRequest(with: GCDWebServerServerErrorHTTPStatusCode.internalServerError.rawValue)
     }
   }
 
@@ -375,7 +372,7 @@ class GCDWebServerConnection {
     let overrittenResponse = response
     // TODO: Add response properties and logic with them.
     // TODO: Add test cases which cause overriding.
-    if response.statusCode >= 200 && response.statusCode < 300 {
+    if response.statusCode >= 200 && response.statusCode < 300 && compareResources() {
       let statusCode =
         request.method == "HEAD" || request.method == "GET"
         ? GCDWebServerRedirectionHTTPStatusCode.notModified.rawValue
@@ -383,6 +380,11 @@ class GCDWebServerConnection {
       return GCDWebServerResponse(statusCode: statusCode)
     }
     return overrittenResponse
+  }
+
+  private func compareResources() -> Bool {
+    // TODO: Implement actual logic.
+    return false
   }
 
   // MARK: Tmp
