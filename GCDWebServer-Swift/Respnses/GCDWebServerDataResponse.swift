@@ -27,7 +27,7 @@
 
 import Foundation
 
-public class GCDWebServerDataResponse: GCDWebServerResponse {
+public final class GCDWebServerDataResponse: GCDWebServerResponse {
 
   public init(with data: Data, contentType: String) {
     super.init()

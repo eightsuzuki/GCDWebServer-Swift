@@ -144,12 +144,12 @@ class GCDWebServerConnection {
             }
           }
 
-          if self.request == nil {
+          guard self.request != nil else {
             self.abortRequest(with: GCDWebServerServerErrorHTTPStatusCode.notImplemented.rawValue)
             return
           }
 
-          if !self.request!.hasBody() {
+          guard self.request!.hasBody() else {
             // TODO: Add test cases to verify the following line.
             self.startProcessingRequest()
             return
@@ -157,7 +157,7 @@ class GCDWebServerConnection {
 
           self.request!.prepareForWriting()
           // TODO: Add usesChunkedTransferEncoding property and use it here.
-          if extraData.count > self.request!.contentLength {
+          guard extraData.count <= self.request!.contentLength else {
             self.abortRequest(with: GCDWebServerClientErrorHTTPStatusCode.badRequest.rawValue)
             return
           }
@@ -198,12 +198,12 @@ class GCDWebServerConnection {
 
   private func readBody(with length: Int, initialData: Data) {
     // TODO: Add tests for all cases.
-    if !self.request!.performOpen() {
+    guard self.request!.performOpen() else {
       self.abortRequest(with: GCDWebServerServerErrorHTTPStatusCode.internalServerError.rawValue)
       return
     }
 
-    if !self.request!.performWriteData(initialData) {
+    guard self.request!.performWriteData(initialData) else {
       self.logger.error("Failed writing request body on socket \(self.socket)")
       if !self.request!.performClose() {
         self.logger.error("Failed closing request body for socket \(self.socket)")
@@ -237,19 +237,21 @@ class GCDWebServerConnection {
     // TODO: Add tests for all cases.
     self.bodyData = Data(capacity: kBodyReadCapacity)
     self.readData(dataType: readDataTypes.body.rawValue, with: length) { success in
-      if !success {
+      guard success else {
         completionBlock(false)
         return
       }
 
-      if self.bodyData!.count > length {
+      guard self.bodyData!.count <= length else {
         self.logger.error("Unexpected extra content reading request body on socket \(self.socket)")
         completionBlock(false)
+        return
       }
 
-      if !self.request!.performWriteData(self.bodyData!) {
+      guard self.request!.performWriteData(self.bodyData!) else {
         self.logger.error("Failed writing request body on socket \(self.socket)")
         completionBlock(false)
+        return
       }
 
       let remainingLength = length - self.bodyData!.count
@@ -335,7 +337,7 @@ class GCDWebServerConnection {
     }
 
     // TODO: Implement performOpen of GCDWebServerResponse and call it here.
-    if hasBody && !response.performOpen() {
+    guard !hasBody || response.performOpen() else {
       self.logger.error("Failed opening response body for socket \(self.socket)")
       return
     }
@@ -372,7 +374,7 @@ class GCDWebServerConnection {
     let overrittenResponse = response
     // TODO: Add response properties and logic with them.
     // TODO: Add test cases which cause overriding.
-    if response.statusCode >= 200 && response.statusCode < 300 && compareResources() {
+    guard response.statusCode < 200 || response.statusCode >= 300 || !compareResources() else {
       let statusCode =
         request.method == "HEAD" || request.method == "GET"
         ? GCDWebServerRedirectionHTTPStatusCode.notModified.rawValue

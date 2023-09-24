@@ -5,6 +5,10 @@ import XCTest
 
 final class GCDWebServerTests: XCTestCase {
 
+  private enum SpecialCharacters {
+    static let CRLF = "\r\n"
+  }
+
   private var capturedLogMessages = [String]()
 
   func isIncludedInLogMessages(logKeyWord: String) -> Bool {
@@ -51,11 +55,9 @@ final class GCDWebServerTests: XCTestCase {
 
   func testStart() {
     // TODO: Check if returned response is the same with the expected one.
-    let isResponseUsed = expectation(description: "Check if a registered response is used.")
     let server = GCDWebServer()
 
     server.addHandler(for: "GET", regex: "/test") { _ in
-      isResponseUsed.fulfill()
       return GCDWebServerDataResponse(html: "<html><body><p>Hello World</p></body></html>")
     }
 
@@ -70,13 +72,15 @@ final class GCDWebServerTests: XCTestCase {
     var bindRemoteAddr4 = sockaddr()
     memcpy(&bindRemoteAddr4, &remoteAddr, Int(MemoryLayout<sockaddr_in>.size))
 
-    if connect(clientSocket, &bindRemoteAddr4, socklen_t(MemoryLayout<sockaddr_in>.size)) != 0 {
+    guard connect(clientSocket, &bindRemoteAddr4, socklen_t(MemoryLayout<sockaddr_in>.size)) == 0
+    else {
       server.stop()
       close(clientSocket)
 
       let errorNumber = errno
       let errorMessage = String(cString: strerror(errorNumber))
       XCTFail("Connect failed with error: \(errorNumber) - \(errorMessage)")
+      return
     }
 
     let method = "GET"
@@ -84,22 +88,33 @@ final class GCDWebServerTests: XCTestCase {
     let host = "www.example.com"
     let requestBody = "This is the message body, if present."
     // Need to add \r\n count to calculate Content-Length.
-    let contentLength = requestBody.utf8.count + "\r\n".utf8.count
+    let contentLength = requestBody.utf8.count + SpecialCharacters.CRLF.utf8.count
     let contentType = "text/plain"
     let request =
-      "\(method) \(path) HTTP/1.1\r\nHost: \(host)\r\nUser-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0\r\nAccept-Language: en-US,en;q=0.5\r\nContent-Length: \(contentLength)\r\nContent-Type: \(contentType)\r\nConnection: keep-alive\r\n\r\n\(requestBody)\r\n"
-    let sentBytes = send(clientSocket, request, request.utf8.count, 0)
-    if sentBytes < 0 {
+      "\(method) \(path) HTTP/1.1\(SpecialCharacters.CRLF)Host: \(host)\(SpecialCharacters.CRLF)User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0\(SpecialCharacters.CRLF)Accept-Language: en-US,en;q=0.5\r\nContent-Length: \(contentLength)\(SpecialCharacters.CRLF)Content-Type: \(contentType)\(SpecialCharacters.CRLF)Connection: keep-alive\(SpecialCharacters.CRLF)\(SpecialCharacters.CRLF)\(requestBody)\(SpecialCharacters.CRLF)"
+
+    guard send(clientSocket, request, request.utf8.count, 0) > 0 else {
       server.stop()
       close(clientSocket)
 
       let errorNumber = errno
       let errorMessage = String(cString: strerror(errorNumber))
       XCTFail("Send failed with error: \(errorNumber) - \(errorMessage)")
-    } else {
-      close(clientSocket)
+      return
+    }
+
+    var responseBuffer = [UInt8](repeating: 0, count: 1024)
+    recv(clientSocket, &responseBuffer, responseBuffer.count, 0)
+    close(clientSocket)
+
+    let response = String(cString: responseBuffer)
+    let expectedResponse = "HTTP/1.1 200 OK\(SpecialCharacters.CRLF)\(SpecialCharacters.CRLF)"
+    let isResponseMatched = expectation(
+      description: "Check if a returned response is matched with the expected one.")
+    if response == expectedResponse {
+      isResponseMatched.fulfill()
     }
     server.stop()
-    wait(for: [isResponseUsed], timeout: 1)
+    wait(for: [isResponseMatched], timeout: 1)
   }
 }
