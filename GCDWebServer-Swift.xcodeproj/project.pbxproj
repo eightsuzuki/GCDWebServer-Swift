@@ -146,7 +146,7 @@
 		09E1FFB32A99A19500C4AE69 = {
 			isa = PBXGroup;
 			children = (
-				09E1FFBE2A99A19500C4AE69 /* GCDWebServer-Swift */,
+				09E1FFBE2A99A19500C4AE69 /* Sources */,
 				09E1FFCE2A99D4BF00C4AE69 /* Tests */,
 				09E1FFBD2A99A19500C4AE69 /* Products */,
 			);
@@ -163,13 +163,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		09E1FFBE2A99A19500C4AE69 /* GCDWebServer-Swift */ = {
+		09E1FFBE2A99A19500C4AE69 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
 				0951D47F2ABD52F600DDF146 /* Respnses */,
 				09E1FFD82A9C7DA500C4AE69 /* Core */,
 			);
-			path = "GCDWebServer-Swift";
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		09E1FFCE2A99D4BF00C4AE69 /* Tests */ = {

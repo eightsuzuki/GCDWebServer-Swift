@@ -9,24 +9,6 @@ final class GCDWebServerTests: XCTestCase {
     static let CRLF = "\r\n"
   }
 
-  private var capturedLogMessages = [String]()
-
-  func isIncludedInLogMessages(logKeyWord: String) -> Bool {
-    do {
-      let store = try OSLogStore.init(scope: .currentProcessIdentifier)
-      let position = store.position(date: Date().addingTimeInterval(-10))
-      let entries = try store.getEntries(with: [], at: position, matching: nil)
-      for entry in entries {
-        if entry.composedMessage.contains(logKeyWord) {
-          return true
-        }
-      }
-      return false
-    } catch {
-      return false
-    }
-  }
-
   func testAddHandler() {
     let server = GCDWebServer()
     XCTAssertNotNil(server)
@@ -54,7 +36,6 @@ final class GCDWebServerTests: XCTestCase {
   }
 
   func testStart() {
-    // TODO: Check if returned response is the same with the expected one.
     let server = GCDWebServer()
 
     server.addHandler(for: "GET", regex: "/test") { _ in
