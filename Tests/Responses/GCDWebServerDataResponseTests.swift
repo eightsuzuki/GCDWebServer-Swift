@@ -6,8 +6,7 @@ final class GCDWebServerDataResponseTests: XCTestCase {
 
   func testInit() {
     let dataResponse = GCDWebServerDataResponse.response(
-      with: "<html><body><p>Hello World</p></body></html>")
+      html: "<html><body><p>Hello World</p></body></html>")
     XCTAssertNotNil(dataResponse)
   }
-
 }
